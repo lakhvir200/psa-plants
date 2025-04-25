@@ -1,0 +1,9 @@
+git add .
+git commit -m "Made changes to the homepage"
+
+
+
+git push origin main
+
+
+https://psa-plants.vercel.app/

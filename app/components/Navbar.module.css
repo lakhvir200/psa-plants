@@ -1,0 +1,28 @@
+.navbar {
+  background-color: #64e295;
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 4px;
+  left: 2px; 
+  height: 40px;
+  width: 100%;
+  z-index: 1001;
+  transition: margin-left 0.3s ease-in-out;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.default {
+  margin-left: 0;
+}
+
+.shifted {
+  margin-left: 160px; /* Matches the sidebar width */
+}
+
+.menuButton {
+  margin-right: 10px;
+  color: white;
+}

@@ -1,0 +1,60 @@
+.sidebar {
+  width: 120px; /* Fixed width of sidebar */
+  background-color: #e0cbcb;
+  height: 100vh;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  left: 0;
+  top: 5px; /* Adjusted to sit below the Navbar */
+  transition: transform 0.3s ease-in-out;
+  z-index: 1001; /* Ensures it stays below the Navbar */
+}
+
+.closed {
+  transform: translateX(-250px);  
+}
+
+.open {
+  transform: translateX(0);
+}
+
+.linkList {
+  list-style: none; 
+  padding: 0;
+  margin: 0;
+}
+
+.linkItem {
+  margin: 15px 0;
+  
+}
+.link {
+  display: block;
+  text-decoration: none;
+  color: blue;
+  padding: 10px 15px;
+  font-weight: normal;
+  transition: all 0.3s ease;
+}
+
+.linkItem a {
+  text-decoration: none;
+  color: #2507cf;
+  font-weight: bold;
+}
+
+.linkItem a:hover {
+  color: #0070f3;
+}
+
+.link:hover {
+  background-color: #e0e0e0;
+}
+
+.active {
+  font-weight: bold;
+  color: red !important; /* Ensure the active state has priority */
+ /* border-left: 4px solid red;*/
+  background-color: #ffe5e5; /* Optional background for the active link */
+}
