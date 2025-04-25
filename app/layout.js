@@ -1,26 +1,19 @@
-"use client";
-import { useState } from "react";
-import Sidebar from "./components/Sidebar";
-import Navbar from "./components/Navbar";
-export default function AdminLayout({ children }) {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
 
-  const handleToggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+// app/_layout.tsx (for TypeScript)
+import React from "react";
+import AdminLayout from "./components/AdminLayout"; // Assuming AdminLayout is in components
 
+export default function RootLayout({ children }) {
   return (
-    <div>
-      <Navbar onToggleSidebar={handleToggleSidebar} isSidebarOpen={isSidebarOpen} />
-      <Sidebar userType="admin" isOpen={isSidebarOpen} />
-      <main
-        style={{
-          marginLeft: isSidebarOpen ? "150px" : "0",
-          transition: "margin-left 0.3s ease-in-out",
-          padding: "10px",
-          marginTop: "40px", // Account for Navbar height
-        }}
-      >
-        {children}
-      </main>
-    </div>
+    <html lang="en">
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Dashboard</title>
+      </head>
+      <body>
+        <AdminLayout>{children}</AdminLayout>
+      </body>
+    </html>
   );
 }

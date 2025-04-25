@@ -5,3 +5,10 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+// next.config.js
+
+module.exports = {
+  experimental: {
+    turbopack: true, // Enable Turbopack for fast development
+  },
+};
