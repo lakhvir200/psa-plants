@@ -9,7 +9,7 @@ export default function Sidebar({ userType, isOpen }) {
   const links =
     userType === "admin"
       ? [
-          { name: "Dashboard", href: "/admin/dashboard" },
+          { name: "Dashboard", href: "/dashboard" },
           // { name: "Equipment", href: "/admin/equipments" },
           { name: "PSA", href: "/admin/psa" },
           { name: "Repair", href: "/admin/repairs" },
