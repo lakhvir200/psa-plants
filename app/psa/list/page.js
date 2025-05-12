@@ -4,7 +4,7 @@ import CustomDataGrid from "../../../components/DataGrid";
 import { Container, Typography, CircularProgress } from '@mui/material';
 import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextField } from "@mui/material";
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
-import ReusableModal from "../../../components/DialogPopup";
+import ReusableModal from "../../components/DialogPopup";
 import EditEquipment from '../edit/[psa_id]/page';
 import EquipmentDetail from '../detail/[psa_id]/page.js';
 import AddCMC from '../../cmc_amc/edit/[psa_id]/page.js';
