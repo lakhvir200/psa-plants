@@ -1,3 +1,5 @@
+git status
+
 git add .
 git commit -m "Made changes to the homepage"
 
@@ -7,3 +9,9 @@ git push origin main
 
 
 https://psa-plants.vercel.app/
+
+
+run these commands
+git add app/documents app/util/dbpg.js next.config.ts
+git commit -m "Updated dbpg config and removed experimental turbopack"
+git push origin main

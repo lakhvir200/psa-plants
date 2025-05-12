@@ -1,14 +1,7 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Remove the experimental block or any other configuration you don't need
 };
 
 export default nextConfig;
-// next.config.js
-
-module.exports = {
-  experimental: {
-    turbopack: true, // Enable Turbopack for fast development
-  },
-};
