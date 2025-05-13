@@ -73,6 +73,81 @@ export default function HomePage() {
   const initialColumnVisibility = {
     date_of_purchase: false, 
   };
+   const contextMenuItems = [
+    {
+      label: "Edit", action: (row) => {
+        console.log(row)
+        setDialogContent(
+          <EditEquipment
+            psa_id={row.psa_id}
+            onClose={handleClose}
+            imageTitle={"update Image"}// Pass the close handler to the form
+          />
+        );
+        setOpenDialogName('Edit Equipment')
+        handleOpen()
+        //  console.log("Edit row:", row.EQUIPMENT_ID)
+      }
+    },
+    {
+      label: "Clone", action: (row) => {
+        setDialogContent(
+          <EditEquipment
+            psa_id={row.psa_id}
+            onClose={handleClose}// Pass the close handler to the form
+            imageTitle={"update Image"}
+            insert={"Clone"}
+          />
+        );
+        setOpenDialogName('Clone Equipment')
+        handleOpen()
+        //  console.log("Edit row:", row.EQUIPMENT_ID)
+      }
+    },
+    {
+      label: "Add CMC", action: (row) => {
+        console.log("Edit row:", row)
+        setDialogContent(
+          <AddCMC
+            psa_id={row.psa_id}
+            onClose={handleClose}// Pass the close handler to the form
+            action={'add'}
+          />
+        );
+        setOpenDialogName('Add CMC')
+        handleOpen()
+        //  console.log("Edit row:", row.EQUIPMENT_ID)
+      }
+    },
+    {
+      label: "View Detail", action: (row) => {
+        setDialogContent(
+          <EquipmentDetail
+            psa_id={row.psa_id}
+            onClose={handleClose}// Pass the close handler to the form
+          />
+        );
+        setOpenDialogName('View Detail')
+        handleOpen()
+        //  console.log("Edit row:", row.EQUIPMENT_ID)
+      }
+    },
+    {
+      label: "Upload Document", action: (row) => {
+        setDialogContent(
+          <Upload
+            equipmentId={row.psa_id}
+            onClose={handleClose}// Pass the close handler to the form
+          />
+        );
+        setOpenDialogName('Upload Document')
+        handleOpen()
+        //  console.log("Edit row:", row.EQUIPMENT_ID)
+      }
+    },
+    { label: "Upload Image", action: (row) => console.log("Edit row:", row) },
+    { label: "Delete", action: (row) => console.log("Delete row:", row) },
+  ];
   console.log(data)
   if (loading) return <p>Loading data...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -87,7 +162,7 @@ export default function HomePage() {
         columns={columnDefs}
         checkboxSelection={false}
         initialColumnVisibility={initialColumnVisibility}
-       // contextMenuItems={contextMenuItems}
+       contextMenuItems={contextMenuItems}
       />
     </main>
   );
