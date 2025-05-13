@@ -25,7 +25,55 @@ export default function HomePage() {
     }
     fetchData();
   }, []);
-console.log (data)
+  const rows1 = data.map((item) => ({
+    id: item.psa_id,
+    ...item,
+  }));
+   const columnDefs = [
+    { headerName: "ID", field: "psa_id", width: 150 },
+    { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
+
+    { headerName: "MODEL", field: "model", width: 140 }, {
+      headerName: "SPECIFICATION", field: "specification", minWidth: 300,
+    },
+    {
+      field: "date_of_purchase",
+      headerName: "DTAE OF PURCHASE",
+      width: 150,
+      renderCell: (params) => {
+        if (!params.value) return ''; // Handle null or undefined values    
+        const date = new Date(params.value); // Convert to Date object
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+      }
+    },
+
+    { headerName: "STATE", field: "state", width: 150 },
+    { headerName: "CITY", field: 'city', width: 150 },
+    
+    {
+      field: "date_of_installation",
+      headerName: "DATE OF INSTALLATION",
+      width: 100,
+      renderCell: (params) => {
+        if (!params.value) return ''; // Handle null or undefined values    
+        const date = new Date(params.value); // Convert to Date object
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+      }
+    },
+    { headerName: "Remarks", field: "remarks", width: 100 },
+    { headerName: "ISACTIVE", field: 'is_active', width: 75 },
+    { headerName: "Supplier", field: 'supplier', width: 150 },
+  ]
+  const initialColumnVisibility = {
+    date_of_purchase: false, 
+  };
+  console.log(data)
   if (loading) return <p>Loading data...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!data.length) return <p>No data found.</p>;
@@ -33,24 +81,14 @@ console.log (data)
   return (
     <main className="p-4">
       <h1 className="text-2xl font-bold mb-4">Hospital Data</h1>
-      <table className="table-auto border border-collapse border-gray-300">
-        <thead>
-          <tr>
-            <th className="border px-4 py-2">PSA ID</th>
-            <th className="border px-4 py-2">Hospital Name</th>
-            {/* Add more fields if needed */}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row) => (
-            <tr key={row.psa_id}>
-              <td className="border px-4 py-2">{row.psa_id}</td>
-              <td className="border px-4 py-2">{row.customer_name}</td>
-              {/* More fields */}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      
+      <CustomDataGrid
+        rows={rows1}
+        columns={columnDefs}
+        checkboxSelection={false}
+        initialColumnVisibility={initialColumnVisibility}
+       // contextMenuItems={contextMenuItems}
+      />
     </main>
   );
 }
