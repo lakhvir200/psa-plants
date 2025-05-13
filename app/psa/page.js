@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import CustomDataGrid from "../components/DataGrid";
 
 export default function HomePage() {
   const [data, setData] = useState([]);
@@ -44,7 +45,7 @@ console.log (data)
           {data.map((row) => (
             <tr key={row.psa_id}>
               <td className="border px-4 py-2">{row.psa_id}</td>
-              <td className="border px-4 py-2">{row.hospital_name}</td>
+              <td className="border px-4 py-2">{row.customer_name}</td>
               {/* More fields */}
             </tr>
           ))}
