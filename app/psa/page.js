@@ -1,12 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import CustomDataGrid from "../components/DataGrid";
-
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import CustomDataGrid from "../components/DataGrid.jsx";
+import { Container, Typography, CircularProgress } from '@mui/material';
+import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextField } from "@mui/material";
+import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
+import ReusableModal from "../components/DialogPopup";
+import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api';
+import debounce from "lodash.debounce";
 export default function HomePage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchText, setSearchText] = useState('');
+  const [equipments, setEquipments] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const isFirstRender = useRef(true);
+  // Filter states 
+
 
   useEffect(() => {
     async function fetchData() {
@@ -49,7 +61,6 @@ export default function HomePage() {
         return `${day}-${month}-${year}`;
       }
     },
-
     { headerName: "STATE", field: "state", width: 150 },
     { headerName: "CITY", field: 'city', width: 150 },
     
@@ -148,22 +159,88 @@ export default function HomePage() {
     { label: "Upload Image", action: (row) => console.log("Edit row:", row) },
     { label: "Delete", action: (row) => console.log("Delete row:", row) },
   ];
+  const loadData = debounce(async (filters) => {
+      try {
+        const data = await fetchSearchHospitalData(filters);
+        // console.log("Fetched Data:", data);
+        setEquipments(data);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    }, 300); // Debounce delay in milliseconds
+  useEffect(() => {
+    const filters = {
+      search: searchText || null,
+
+    };
+    // Skip the first render
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    loadData(filters);
+    // Cleanup debounce on unmount
+    return () => loadData.cancel();
+  }, [searchText]);
+  const handleSearch = (e) => {
+    if (e.target.value.length === 0 || e.target.value.length > 2)
+      setSearchText(e.target.value || "");
+  }
+  const handleOpen = () => {
+    setIsModalOpen(true);
+    //console.log("Opening modal...");
+  };
   console.log(data)
   if (loading) return <p>Loading data...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!data.length) return <p>No data found.</p>;
 
   return (
-    <main className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Hospital Data</h1>
-      
-      <CustomDataGrid
-        rows={rows1}
-        columns={columnDefs}
-        checkboxSelection={false}
-        initialColumnVisibility={initialColumnVisibility}
-       contextMenuItems={contextMenuItems}
-      />
-    </main>
+    <div style={{ padding: "5px", marginLeft: "5px", justifyContent: "center", alignItems: "center" }}>
+      <h3>Equipment List</h3>
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        <Paper elevation={3} style={{ padding: "10px" }}>          
+          <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="10px">
+            {/* Search Box */}
+            <TextField
+              label="Search"
+              variant="outlined"
+              type="search"
+              size="small"
+              style={{ width: "15%" }}
+              onChange={handleSearch}
+            />
+            {/* Buttons */}
+            <Box display="flex" gap="10px">
+              <Button onClick={handleOpen}
+                variant="outlined"
+                startIcon={<ArrowUpwardOutlinedIcon />}
+              >
+                Export
+              </Button>
+              <Button onClick={'AddNewEquipment'} variant="contained" color="secondary">
+                Add Equipment
+              </Button>
+            </Box>
+          </Box>
+          {/* <ReusableModal
+            open={isModalOpen}
+            onClose={handleClose}
+            title={openDialogName}
+          >
+            {dialogContent}
+          </ReusableModal> */}
+          <CustomDataGrid
+            rows={rows1}
+            columns={columnDefs}
+            checkboxSelection={false}
+            initialColumnVisibility={initialColumnVisibility}
+            contextMenuItems={contextMenuItems}
+          />
+        </Paper>
+      )}
+    </div>
   );
 }
