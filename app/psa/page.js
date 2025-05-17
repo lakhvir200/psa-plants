@@ -239,7 +239,15 @@ export default function HomePage() {
       {loading ? (
         <CircularProgress />
       ) : (
-        <Paper elevation={3} sx={{ p: 2, width: "100%", maxWidth: "1200px" }}>
+        <Paper
+          elevation={3}
+          sx={{
+            p: 2,
+            width: "100%",          // always take the full row
+            maxWidth: { xs: "100%", md: "none" }  // no cap from md (960 px) upward
+          }}
+        >
+
           <Box
             display="flex"
             flexDirection={{ xs: "column", sm: "row" }}
