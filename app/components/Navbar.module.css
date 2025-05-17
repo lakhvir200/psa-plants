@@ -1,28 +1,54 @@
 .navbar {
-  background-color: #64e295;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 60px;
+  width: 100%;
+  background-color: #1976d2;
   color: white;
-  padding: 10px 20px;
   display: flex;
   align-items: center;
-  position: fixed;
-  top: 4px;
-  left: 2px; 
-  height: 40px;
-  width: 100%;
-  z-index: 1001;
-  transition: margin-left 0.3s ease-in-out;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  padding: 0 20px;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.default {
-  margin-left: 0;
+.leftMenu {
+  display: flex;
+  gap: 20px;
 }
 
-.shifted {
-  margin-left: 160px; /* Matches the sidebar width */
-}
-
-.menuButton {
-  margin-right: 10px;
+.navButton {
+  background: none;
+  border: none;
   color: white;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdownContent {
+  position: absolute;
+  top: 45px;
+  left: 0;
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+  min-width: 160px;
+  border-radius: 4px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+}
+
+.dropdownItem {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: #eeeeee;
 }

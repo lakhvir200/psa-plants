@@ -20,28 +20,46 @@ export default function HomePage() {
   // Filter states 
 
 
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       const res = await fetch("/api/psa"); // fetches from your API route
+  //       if (!res.ok) {
+  //         throw new Error("Failed to fetch");
+  //       }
+  //       const json = await res.json();
+  //       setData(json);
+  //     } catch (err) {
+  //       setError(err.message || "Error occurred");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  //   fetchData();
+  // }, []);
   useEffect(() => {
-    async function fetchData() {
+    const fetchEquipments = async () => {
       try {
-        const res = await fetch("/api/psa"); // fetches from your API route
-        if (!res.ok) {
-          throw new Error("Failed to fetch");
-        }
-        const json = await res.json();
-        setData(json);
-      } catch (err) {
-        setError(err.message || "Error occurred");
-      } finally {
+        const result = await fetchHospitalData();
+        const parsedData = JSON.parse(result);
+
+        setEquipments(parsedData.equip);
+      } catch (error) {
+        console.error("Error fetching equipments:", error);
+      }
+      finally {
         setLoading(false);
       }
-    }
-    fetchData();
+    };
+    fetchEquipments();
   }, []);
-  const rows1 = data.map((item) => ({
+
+  const rows1 = equipments.map((item) => ({
     id: item.psa_id,
     ...item,
   }));
-   const columnDefs = [
+  // console.log(rows1)
+  const columnDefs = [
     { headerName: "ID", field: "psa_id", width: 150 },
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
 
@@ -63,7 +81,7 @@ export default function HomePage() {
     },
     { headerName: "STATE", field: "state", width: 150 },
     { headerName: "CITY", field: 'city', width: 150 },
-    
+
     {
       field: "date_of_installation",
       headerName: "DATE OF INSTALLATION",
@@ -82,9 +100,9 @@ export default function HomePage() {
     { headerName: "Supplier", field: 'supplier', width: 150 },
   ]
   const initialColumnVisibility = {
-    date_of_purchase: false, 
+    date_of_purchase: false,
   };
-   const contextMenuItems = [
+  const contextMenuItems = [
     {
       label: "Edit", action: (row) => {
         console.log(row)
@@ -160,14 +178,14 @@ export default function HomePage() {
     { label: "Delete", action: (row) => console.log("Delete row:", row) },
   ];
   const loadData = debounce(async (filters) => {
-      try {
-        const data = await fetchSearchHospitalData(filters);
-        // console.log("Fetched Data:", data);
-        setEquipments(data);
-      } catch (error) {
-        console.error("Error loading data:", error);
-      }
-    }, 300); // Debounce delay in milliseconds
+    try {
+      const data = await fetchSearchHospitalData(filters);
+      // console.log("Fetched Data:", data);
+      setEquipments(data);
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+  }, 300); // Debounce delay in milliseconds
   useEffect(() => {
     const filters = {
       search: searchText || null,
@@ -190,48 +208,75 @@ export default function HomePage() {
     setIsModalOpen(true);
     //console.log("Opening modal...");
   };
-  console.log(data)
+  // console.log(equipments)
+  const AddNewEquipment = () => {
+    console.log("Add equipment")
+    // setDialogContent(
+    //   <EditEquipment onClose={handleClose}
+    //     imageTitle={"Add Image"}
+    //   />
+    // );
+    // setOpenDialogName('Add Equipment');
+    // handleOpen();
+  };
+
+
   if (loading) return <p>Loading data...</p>;
   if (error) return <p>Error: {error}</p>;
-  if (!data.length) return <p>No data found.</p>;
+  if (!equipments.length) return <p>No data found.</p>;
 
   return (
-    <div style={{ padding: "5px", marginLeft: "5px", justifyContent: "center", alignItems: "center" }}>
+    <Box
+      sx={{
+        p: 1,
+        ml: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <h3>Equipment List</h3>
       {loading ? (
         <CircularProgress />
       ) : (
-        <Paper elevation={3} style={{ padding: "10px" }}>          
-          <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="10px">
+        <Paper elevation={3} sx={{ p: 2, width: "100%", maxWidth: "1200px" }}>
+          <Box
+            display="flex"
+            flexDirection={{ xs: "column", sm: "row" }}
+            justifyContent="space-between"
+            alignItems={{ xs: "stretch", sm: "center" }}
+            mb={2}
+            gap={2}
+          >
             {/* Search Box */}
             <TextField
               label="Search"
               variant="outlined"
               type="search"
               size="small"
-              style={{ width: "15%" }}
+              sx={{ width: { xs: "100%", sm: "25%" } }}
               onChange={handleSearch}
             />
+
             {/* Buttons */}
-            <Box display="flex" gap="10px">
-              <Button onClick={handleOpen}
+            <Box display="flex" gap={2} flexWrap="wrap" justifyContent="flex-end">
+              <Button
+                onClick={handleOpen}
                 variant="outlined"
                 startIcon={<ArrowUpwardOutlinedIcon />}
               >
                 Export
               </Button>
-              <Button onClick={'AddNewEquipment'} variant="contained" color="secondary">
-                Add Equipment
+              <Button
+                onClick={AddNewEquipment}
+                variant="contained"
+                color="secondary"
+              >
+                Add
               </Button>
             </Box>
           </Box>
-          {/* <ReusableModal
-            open={isModalOpen}
-            onClose={handleClose}
-            title={openDialogName}
-          >
-            {dialogContent}
-          </ReusableModal> */}
+
           <CustomDataGrid
             rows={rows1}
             columns={columnDefs}
@@ -241,6 +286,7 @@ export default function HomePage() {
           />
         </Paper>
       )}
-    </div>
+    </Box>
   );
+
 }

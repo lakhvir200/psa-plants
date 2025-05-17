@@ -64,7 +64,7 @@ export const fetchSearchEquipments = async (filters = {}) => {
 export const fetchHospitalData = async (recordForEdit) => { 
   try {
     const responses = await Promise.all([
-      axios.get('/api/psa/list'),
+      axios.get('/api/psa'),
       
     ]);
     const data = {
@@ -80,7 +80,7 @@ export const fetchHospitalData = async (recordForEdit) => {
 export const fetchSearchHospitalData = async (filters = {}) => {
   try {
     let endpoint = `/api/psa`;
-    console.log(filters,'hi')
+    //console.log(filters,'hi')
     // Build query string if filters exist
     const queryParams = new URLSearchParams(
       Object.entries(filters).filter(([_, value]) => value)
