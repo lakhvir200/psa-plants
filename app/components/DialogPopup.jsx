@@ -34,11 +34,7 @@ export default function DialogPopup({ open, onClose, title, children }) {
         {children}
       </DialogContent>
 
-      {/* <DialogActions>
-        <Button onClick={onClose} color="secondary">
-          Cancel
-        </Button>
-      </DialogActions> */}
+     
     </Dialog>
   );
 }
