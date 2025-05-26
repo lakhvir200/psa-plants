@@ -228,8 +228,8 @@ export default function HomePage() {
       // // imageTitle={"Add Image"}
       // />
     );
-   // setOpenDialogName('Add Equipment');
-   // handleOpen();
+   setOpenDialogName('Add Equipment');
+   handleOpen();
   };
 
 
