@@ -220,15 +220,16 @@ export default function HomePage() {
   const AddNewEquipment = () => {
     console.log("Add equipment")
     setDialogContent(
-      <EditEquipment
-       onClose={handleClose}
-       insert={'insert'}
+      setDialogContent(<div>Hello World</div>)
+      // <EditEquipment
+      //  onClose={handleClose}
+      //  insert={'insert'}
 
-      // imageTitle={"Add Image"}
-      />
+      // // imageTitle={"Add Image"}
+      // />
     );
-    setOpenDialogName('Add Equipment');
-    handleOpen();
+   // setOpenDialogName('Add Equipment');
+   // handleOpen();
   };
 
 
