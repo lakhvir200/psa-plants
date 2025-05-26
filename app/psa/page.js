@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import CustomDataGrid from "../components/DataGrid.jsx";
 import { Container, Typography, CircularProgress } from '@mui/material';
@@ -7,7 +6,10 @@ import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextFiel
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ReusableModal from "../components/DialogPopup";
 import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api';
+import EditEquipment from '../psa/edit/[psa_id]/page.js'
 import debounce from "lodash.debounce";
+
+
 export default function HomePage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,11 +17,13 @@ export default function HomePage() {
   const [searchText, setSearchText] = useState('');
   const [equipments, setEquipments] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dialogContent, setDialogContent] = useState(null);
+  const [openDialogName, setOpenDialogName] = useState('');
+  
+
 
   const isFirstRender = useRef(true);
   // Filter states 
-
-
   // useEffect(() => {
   //   async function fetchData() {
   //     try {
@@ -42,7 +46,6 @@ export default function HomePage() {
       try {
         const result = await fetchHospitalData();
         const parsedData = JSON.parse(result);
-
         setEquipments(parsedData.equip);
       } catch (error) {
         console.error("Error fetching equipments:", error);
@@ -208,16 +211,24 @@ export default function HomePage() {
     setIsModalOpen(true);
     //console.log("Opening modal...");
   };
+    const handleClose = () => {
+    setIsModalOpen(false);
+    // console.log("closing modal...");
+  }
+
   // console.log(equipments)
   const AddNewEquipment = () => {
     console.log("Add equipment")
-    // setDialogContent(
-    //   <EditEquipment onClose={handleClose}
-    //     imageTitle={"Add Image"}
-    //   />
-    // );
-    // setOpenDialogName('Add Equipment');
-    // handleOpen();
+    setDialogContent(
+      <EditEquipment
+       onClose={handleClose}
+       insert={'insert'}
+
+      // imageTitle={"Add Image"}
+      />
+    );
+    setOpenDialogName('Add Equipment');
+    handleOpen();
   };
 
 
@@ -284,6 +295,13 @@ export default function HomePage() {
               </Button>
             </Box>
           </Box>
+          <ReusableModal
+            open={isModalOpen}
+            onClose={handleClose}
+            title={openDialogName}
+          >
+            {dialogContent}
+          </ReusableModal>
 
           <CustomDataGrid
             rows={rows1}

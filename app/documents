@@ -18,5 +18,5 @@ git push origin main
 
 
 git add .
-git commit -m "Testing auto-deploy"
+git commit -m "Added Nepal plant"
 git push
