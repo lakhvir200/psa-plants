@@ -55,7 +55,7 @@ const AddEquipments = ({ onClose, psa_id, imageTitle,insert }) => {
       [name]: value,
     }));
   };
-   console.log(insert)
+ //  console.log(insert)
   const handleSubmit = (event) => {
     event.preventDefault();  
     if (insert === "Clone" || !equipmentData.psa_id) {
