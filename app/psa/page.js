@@ -4,9 +4,9 @@ import CustomDataGrid from "../components/DataGrid.jsx";
 import { Container, Typography, CircularProgress } from '@mui/material';
 import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextField } from "@mui/material";
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
-import ReusableModal from "../components/DialogPopup";
-import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api';
-import EditEquipment from '../psa/edit/[psa_id]/page.js'
+import ReusableModal from "../components/DialogPopup.jsx";
+import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
+import EditEquipment from './edit/[psa_id]/page.js'
 import debounce from "lodash.debounce";
 
 
