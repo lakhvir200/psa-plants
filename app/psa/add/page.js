@@ -6,7 +6,9 @@ import CheckBox from "../../components/Checkbox";
 import ReusableInput from "../../components/inputField1";
 import DatePickerField from "../../components/Datepicker";
 
-const AddEquipments = ({ onClose, psa_id, imageTitle,insert }) => {
+export default function AddEquipments(){
+
+// const AddEquipments = ({ onClose, psa_id, imageTitle,insert }) => {
  // console.log('hi me in admin psa')
   const [equipmentData, setEquipmentData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -216,4 +218,4 @@ const AddEquipments = ({ onClose, psa_id, imageTitle,insert }) => {
   );
 };
 
-export default AddEquipments;
+//export default AddEquipments;
