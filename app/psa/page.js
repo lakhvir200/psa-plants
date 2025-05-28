@@ -217,10 +217,12 @@ export default function HomePage() {
   }
 
   // console.log(equipments)
+  const welcomeMessage = "Hello! You're now adding a new PSA Equipment.";
   const AddNewEquipment = () => {
     console.log("Add equipment")
     setDialogContent(
       <EditEquipment
+      welcomeMessage={welcomeMessage}
         onClose={handleClose}
         insert={'insert'}
 
