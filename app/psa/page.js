@@ -6,7 +6,7 @@ import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextFiel
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ReusableModal from "../components/DialogPopup.jsx";
 import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
-import EditEquipment from './add/page.js'
+import EditEquipment from '../components/add/page.js'
 import debounce from "lodash.debounce";
 
 

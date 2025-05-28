@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Stack, Grid} from "@mui/material";
 //import Grid from '@mui/material/Unstable_Grid2';
-import CheckBox from "../../components/Checkbox";
-import ReusableInput from "../../components/inputField1";
-import DatePickerField from "../../components/Datepicker";
+import CheckBox from "../Checkbox";
+import ReusableInput from "../inputField1";
+import DatePickerField from "../Datepicker";
 
-export default function AddEquipments(){
+export default function AddEquipments({ onClose, psa_id, imageTitle, insert }){
 
-// const AddEquipments = ({ onClose, psa_id, imageTitle,insert }) => {
+//const AddEquipments = ({ onClose, psa_id, imageTitle,insert }) => {
  // console.log('hi me in admin psa')
   const [equipmentData, setEquipmentData] = useState({});
   const [loading, setLoading] = useState(false);
