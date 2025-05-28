@@ -291,7 +291,7 @@ export default function HomePage() {
                 variant="contained"
                 color="secondary"
               >
-                Add karo
+                Add 
               </Button>
             </Box>
           </Box>
