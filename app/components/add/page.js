@@ -6,7 +6,7 @@ import CheckBox from "../Checkbox";
 import ReusableInput from "../inputField1";
 import DatePickerField from "../Datepicker";
 
-export default function AddEquipments({ onClose, psa_id, imageTitle, insert }){
+export default function AddEquipments({ onClose, psa_id,  insert }){
 
 //const AddEquipments = ({ onClose, psa_id, imageTitle,insert }) => {
  // console.log('hi me in admin psa')
