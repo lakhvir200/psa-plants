@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Stack, Grid} from "@mui/material";
 //import Grid from '@mui/material/Unstable_Grid2';
-import CheckBox from "../../components/Checkbox";
-import ReusableInput from "../../components/inputField1";
-import DatePickerField from "../../components/Datepicker";
+import CheckBox from "../../../components/Checkbox";
+import ReusableInput from "../../../components/inputField1";
+import DatePickerField from "../../../components/Datepicker";
 
-const AddEquipments = () => {
- // console.log('hi me in admin psa')
+const EditEquipments = (params) => {
+  const {  psa_id } = params;
+// console.log(psa_id)
   const [equipmentData, setEquipmentData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -147,7 +148,7 @@ const AddEquipments = () => {
             />
           </Box> 
           <Button variant="contained" color="primary" sx={{ marginTop: 1 }}>
-            {imageTitle || "Add Image"}
+            {/* {imageTitle || "Add Image"} */}
           </Button>
         </Grid>
 
@@ -205,7 +206,7 @@ const AddEquipments = () => {
             </Button>
           </Grid>
           <Grid>
-            <Button variant="outlined" color="secondary" onClick={onClose}>
+            <Button variant="outlined" color="secondary" >
               Close
             </Button>
           </Grid>
@@ -216,4 +217,4 @@ const AddEquipments = () => {
   );
 };
 
-export default AddEquipments;
+export default EditEquipments;

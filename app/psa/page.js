@@ -6,9 +6,10 @@ import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextFiel
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ReusableModal from "../components/DialogPopup.jsx";
 import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
-import EditEquipment from '../psa/add/page.js'
+//import EditEquipment from '../psa/add/page.js'
+import EditEquipment from '../psa/edit/[psa_id]/page.js'
 import debounce from "lodash.debounce";
-
+import Link from 'next/link';
 
 export default function HomePage() {
   const [data, setData] = useState([]);
@@ -21,7 +22,7 @@ export default function HomePage() {
   const [openDialogName, setOpenDialogName] = useState('');
 
 
-
+  //const psaId = 'PSA001';
   const isFirstRender = useRef(true);
   // Filter states 
   // useEffect(() => {
@@ -218,20 +219,20 @@ export default function HomePage() {
 
   // console.log(equipments)
   const welcomeMessage = "Hello! You're now adding a new PSA Equipment.";
-  const AddNewEquipment = () => {
-    console.log("Add equipment")
+ const AddNewEquipment = () => {  
+    console.log("Add equipment");
     setDialogContent(
       <EditEquipment
-      welcomeMessage={welcomeMessage}
+       // psa_id={psaId}
         onClose={handleClose}
         insert={'insert'}
-
-      // imageTitle={"Add Image"}
       />
     );
+
     setOpenDialogName('Add Equipment');
     handleOpen();
   };
+ 
 
 
   if (loading) return <p>Loading data...</p>;
@@ -293,8 +294,11 @@ export default function HomePage() {
                 variant="contained"
                 color="secondary"
               >
-                Add 
+                Add
               </Button>
+              <Link href={`/psa/edit/${'PSA001'}`}>
+                <button>Edit PSA </button>
+              </Link>
             </Box>
           </Box>
           <ReusableModal
