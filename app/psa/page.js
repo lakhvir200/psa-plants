@@ -7,7 +7,7 @@ import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ReusableModal from "../components/DialogPopup.jsx";
 import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
 //import EditEquipment from '../psa/add/page.js'
-import EditEquipment from '../psa/edit/[psa_id]/page.js'
+import EditEquipment from '../psa/add/page.js'
 import debounce from "lodash.debounce";
 import Link from 'next/link';
 
@@ -22,7 +22,7 @@ export default function HomePage() {
   const [openDialogName, setOpenDialogName] = useState('');
 
 
-  //const psaId = 'PSA001';
+
   const isFirstRender = useRef(true);
   // Filter states 
   // useEffect(() => {

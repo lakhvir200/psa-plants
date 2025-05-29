@@ -7,6 +7,7 @@ import ReusableInput from "../../components/inputField1";
 import DatePickerField from "../../components/Datepicker";
 
 const AddEquipments = () => {
+    const psa_id = 'PSA001';
  // console.log('hi me in admin psa')
   const [equipmentData, setEquipmentData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -147,7 +148,7 @@ const AddEquipments = () => {
             />
           </Box> 
           <Button variant="contained" color="primary" sx={{ marginTop: 1 }}>
-            {imageTitle || "Add Image"}
+            {/* {imageTitle || "Add Image"} */}
           </Button>
         </Grid>
 
@@ -205,9 +206,9 @@ const AddEquipments = () => {
             </Button>
           </Grid>
           <Grid>
-            <Button variant="outlined" color="secondary" onClick={onClose}>
+            {/* <Button variant="outlined" color="secondary" onClick={onClose}>
               Close
-            </Button>
+            </Button> */}
           </Grid>
         </Grid>
       </Grid>
