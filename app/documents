@@ -1,8 +1,7 @@
 git status
 
-git add .
-git commit -m "Made changes in cmc"
-git push origin main
+
+
 
 
 https://psa-plants.vercel.app/
