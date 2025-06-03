@@ -1,0 +1,28 @@
+git status
+
+git add .
+git commit -m "Made changes in cmc"
+git push origin main
+
+
+https://psa-plants.vercel.app/
+
+
+run these commands
+git add app/documents app/util/dbpg.js next.config.ts
+git commit -m "Updated dbpg config and removed experimental set module"
+git push origin main
+
+
+git add .
+git commit -m "check add edit"
+git push
+
+npm install -g vercel
+vercel login
+Set up and deploy “D:\psa-plants-main”? yes
+? Which scope should contain your project? lakhvir200's projects
+? Link to existing project? yes
+? What’s the name of your existing project? psa-plants
+
+vercel --prod
