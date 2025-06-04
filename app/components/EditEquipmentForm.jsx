@@ -159,36 +159,40 @@ export default function EditEquipmentForm({ psa_id, onClose,imageTitle,insert })
  
          <Grid sx={{ width: '75%' }}>
            <Grid container spacing={2}>
-             <Grid sx={{ width: '20%' }}>
+             <Grid sx={{ width: '30%' }}>
                <Stack spacing={2}>
                  <ReusableInput label="Customer Name" name="customer_name" onChange={handleChangeText} inputValue={equipmentData.customer_name || ""} fullWidth />
                  <ReusableInput label="State" name="state" onChange={handleChangeText} inputValue={equipmentData.state || ""} fullWidth />
+                 <ReusableInput label="Cost of equipment" name="cost" onChange={handleChangeText} inputValue={equipmentData.cost || ""} fullWidth />
                </Stack>
              </Grid>
  
-             <Grid sx={{ width: '20%' }}>
+             <Grid sx={{ width: '30%' }}>
                <Stack spacing={2}>
                  <ReusableInput label="City" name="city" onChange={handleChangeText} inputValue={equipmentData.city || ""} fullWidth />
                  <ReusableInput label="Model" name="model" onChange={handleChangeText} inputValue={equipmentData.model || ""} fullWidth />
+                 <ReusableInput label="Service Hours" name="service_hrs" onChange={handleChangeText} inputValue={equipmentData.service_hrs || ""} fullWidth />
                </Stack>
              </Grid>
  
-             <Grid sx={{ width: '20%' }}>
+             <Grid sx={{ width: '30%' }}>
                <Stack spacing={2}>
                <DatePickerField label="Date of purchase" name="date_of_purchase" value={equipmentData.date_of_purchase || ""} onChange={handleChange} fullWidth />
                  <DatePickerField label="Date of Installation" name="date_of_installation" value={equipmentData.date_of_installation || ""} onChange={handleChange} fullWidth />
-                 
-               </Stack>
-             </Grid>
-             <Grid sx={{ width: '20%' }}>
+                 <Grid sx={{ width: '100%' }}>
                <Stack spacing={2}>
                
                  <Stack direction="row" spacing={2} alignItems="center">
                    <ReusableInput label="ID" name="psa_id"  inputValue={equipmentData.psa_id || ""} fullWidth />
                    <CheckBox name="is_active" label="Active" checked={equipmentData.is_active || false} onChange={handleChangeCheckbox} />
+                   
                  </Stack>
                </Stack>
              </Grid>
+               </Stack>
+             </Grid>
+             
+             
  
              <Grid sx={{ width: '45%' }}>
                <ReusableInput label="Specification" name="specification" onChange={handleChangeText} inputValue={equipmentData.specification || ""} multiline rows={2} fullWidth />

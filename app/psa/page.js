@@ -68,7 +68,7 @@ export default function HomePage() {
     id: item.psa_id,
     ...item,
   }));
-  // console.log(rows1)
+   console.log(rows1)
   const columnDefs = [
     { headerName: "ID", field: "psa_id", width: 150 },
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
@@ -89,6 +89,8 @@ export default function HomePage() {
         return `${day}-${month}-${year}`;
       }
     },
+    { headerName: "Cost", field: "cost", width: 150 },
+     { headerName: "SERVICE HOURS", field: "service_hrs", width: 150 },
     { headerName: "STATE", field: "state", width: 150 },
     { headerName: "CITY", field: 'city', width: 150 },
 
@@ -111,6 +113,8 @@ export default function HomePage() {
   ]
   const initialColumnVisibility = {
     date_of_purchase: false,
+    cost:false,
+    service_hrs: false
   };
   const contextMenuItems = [
     {

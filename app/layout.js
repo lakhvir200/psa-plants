@@ -12,6 +12,7 @@ export default function RootLayout({ children }) {
         <title>Admin Dashboard</title>
       </head>
       <body>
+         {/* <main>{children}</main> */}
         <AdminLayout>{children}</AdminLayout>
       </body>
     </html>

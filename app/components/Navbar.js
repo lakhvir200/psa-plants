@@ -19,10 +19,7 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const toggleDropdown = (name) => {
-    setActiveDropdown((prev) => (prev === name ? null : name));
-  };
+  
 
   return (
     <div className={styles.navbar} ref={navRef}>
@@ -46,6 +43,18 @@ export default function Navbar() {
           onClick={() => router.push("/cmc")}
         >
           CMC Detail
+        </button>
+        <button
+          className={`${styles.navButton} ${currentPath === "/services" ? styles.active : ""}`}
+          onClick={() => router.push("/services")}
+        >
+          Services
+        </button>
+        <button
+          className={`${styles.navButton} ${currentPath === "/task" ? styles.active : ""}`}
+          onClick={() => router.push("/cmc")}
+        >
+         Tasks
         </button>
       </div>
     </div>
