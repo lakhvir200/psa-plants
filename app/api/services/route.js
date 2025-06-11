@@ -37,22 +37,23 @@ export async function GET() {
     );
   }
 }
+
 export async function POST(request) {
   try {
     await dbConnect();
 
     const data = await request.json();
-    console.log("Received request data:", data);
+   // console.log("Received request data:", data);
 
     const {
+      current_hrs,
+      is_active,
+      next_service_due,
+      notes,
+      serviced_on,
       psa_id,
-      amc_cmc,
-      start_date,
-      end_date,
       rate,
-      amount,
-      remarks,
-      is_active
+      amount
     } = data;
 
     if (!psa_id) {
@@ -64,24 +65,23 @@ export async function POST(request) {
         }
       );
     }
-
     const query = `
-      INSERT INTO public.cmc_amc (
-        psa_id, amc_cmc, start_date, end_date, rate, amount, remarks, is_active
+      INSERT INTO public.service_records (
+        current_hrs, is_active, next_service_due, notes, serviced_on, psa_id,rate,amount
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6,$7,$8)
       RETURNING *;
     `;
 
     const values = [
+      current_hrs || null,
+      is_active ?? true,
+      next_service_due || null,
+      notes || null,
+      serviced_on || null,
       psa_id,
-      amc_cmc || null,
-      start_date || null,
-      end_date || null,
       rate || null,
-      amount || null,
-      remarks || null,
-      is_active || null
+      amount || null
     ];
 
     console.log("Executing INSERT with values:", values);

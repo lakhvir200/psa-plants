@@ -6,6 +6,7 @@ import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextFiel
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ReusableModal from "../components/DialogPopup";
 import EditCMC from '../components/EditCmcForm.jsx'
+import EditService from '../components/EditServiceForm.jsx'
 import EquipmentDetail from '../components/EditCmcForm.jsx';
 import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
 import debounce from "lodash.debounce";
@@ -37,33 +38,33 @@ export default function ServicePage() {
       setSearchText(e.target.value || "");
   }
   const fetchEquipments = async () => {
-      try {
-        const res = await fetch("/api/services");
-        const data = await res.json();
-        // console.log("Fetched data:", data);
+    try {
+      const res = await fetch("/api/services");
+      const data = await res.json();
+      // console.log("Fetched data:", data);
 
-        // ensure it’s an array and includes `id`
-        if (Array.isArray(data)) {
-          const formatted = data.map((item, index) => ({
-            id: item.id || index, // fallback to index
-            ...item,
-          }));
-          setEquipments(formatted);
-        } else {
-          console.warn("Expected array, got:", data);
-        }
-      } catch (error) {
-        console.error("Error fetching equipments:", error);
-      } finally {
-        setLoading(false);
+      // ensure it’s an array and includes `id`
+      if (Array.isArray(data)) {
+        const formatted = data.map((item, index) => ({
+          id: item.id || index, // fallback to index
+          ...item,
+        }));
+        setEquipments(formatted);
+      } else {
+        console.warn("Expected array, got:", data);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching equipments:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   // console.log(searchText)
-  useEffect(() => {    
+  useEffect(() => {
     fetchEquipments();
   }, []);
 
-  console.log(equipments)
+ // console.log(equipments)
   // Debounced search function to prevent rapid API calls
   const loadData = debounce(async (filters) => {
     try {
@@ -93,12 +94,12 @@ export default function ServicePage() {
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
     { headerName: "STATE", field: "state", width: 150 },
     { headerName: "CITY", field: "city", width: 150 },
-    
+
 
     {
       field: "serviced_on",
       headerName: "DATE OF SERVICE",
-      width: 150,
+      width: 100,
       renderCell: (params) => {
         if (!params.value) return ''; // Handle null or undefined values    
         const date = new Date(params.value); // Convert to Date object
@@ -108,11 +109,23 @@ export default function ServicePage() {
         return `${day}-${month}-${year}`;
       }
     },
-    
-    { headerName: " HOURS", field: "current_hrs", width: 100 },    
+
+    { headerName: " HOURS", field: "current_hrs", width: 100 },
+
+     { headerName: "Type of Service", field: 'notes', width: 100 },
+    { headerName: " IS_ACTIVE", field: "is_active", width: 100,
+      // renderCell: (params) => (
+      //   <input
+      //     type="checkbox"
+      //     checked={params.value}
+      //     enabled={params.value.toString()}
+      //   />
+      // ),
+    },
+
   ]
   const initialColumnVisibility = {
-    
+
   };
 
   const rows1 = equipments.map((item) => ({
@@ -122,20 +135,21 @@ export default function ServicePage() {
   const contextMenuItems = [
     {
       label: "Edit", action: (row) => {
-        // console.log( row)
+         console.log( row)
         setDialogContent(
-          <EditCMC
-            psa_id={row.psa_id}
+          <EditService
+            id={row.id}
             onClose={handleClose}
             imageTitle={"update Image"}// Pass the close handler to the form
+            
           />
         );
-        setOpenDialogName('Edit CMC')
+        setOpenDialogName('Edit Service')
         handleOpen()
         // console.log("Edit row:", row.EQUIPMENT_ID)
       }
     },
-    
+
     {
       label: "View Detail", action: (row) => {
         setDialogContent(
@@ -168,11 +182,11 @@ export default function ServicePage() {
 
     {
       label: "Delete", action: async (row) => {
-        const confirmed = window.confirm(`Are you sure you want to delete PSA ID: ${row.psa_id}?`);
+        const confirmed = window.confirm(`Are you sure you want to delete PSA ID: ${row.id}?`);
         if (!confirmed) return;
 
         try {
-          const res = await fetch(`/api/cmc/edit/${row.psa_id}`, {
+          const res = await fetch(`/api/services/edit/${row.id}`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
@@ -183,7 +197,7 @@ export default function ServicePage() {
 
           if (res.ok) {
             alert('Deleted successfully');
-            
+
             // optionally refresh table data
             await fetchEquipments();; // Replace with your own data reload function
           } else {

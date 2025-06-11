@@ -113,6 +113,7 @@ export default function EditEquipmentForm({ psa_id, onClose,imageTitle,insert })
            customerName: data.customerName,
            state: data.state,
            model: data.model,
+           service_hrs,
            specification: data.specification,
            remarks: data.remarks,
            dateOfPurchase: data.dateOfPurchase,

@@ -10,6 +10,7 @@ import AddEquipment from '../psa/add/page.js'
 import EditEquipment from '../psa/edit/[psa_id]/page.js'
 import EditEquipmentForm from '../components/EditEquipmentForm.jsx';
 import EditCmcForm from '../components/EditCmcForm.jsx';
+import EditServiceForm from '../components/EditServiceForm.jsx';
 import DetailEquipmentForm from '../components/DetailEquipmentForm.jsx';
 import ExportToExcelButton from '../components/ExportToExcelButton.jsx';
 
@@ -68,7 +69,7 @@ export default function HomePage() {
     id: item.psa_id,
     ...item,
   }));
-   console.log(rows1)
+   //console.log(rows1)
   const columnDefs = [
     { headerName: "ID", field: "psa_id", width: 150 },
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
@@ -159,6 +160,23 @@ export default function HomePage() {
           />
         );
         setOpenDialogName('Add CMC')
+        handleOpen()
+        //  console.log("Edit row:", row.EQUIPMENT_ID)
+         }
+    
+    },
+    {
+      label: "Add Service", action: (row) => {
+        console.log("Edit row:", row)
+        setDialogContent(
+          <EditServiceForm
+            id={row.id}
+            psa_id={row.psa_id}
+            onClose={handleClose}// Pass the close handler to the form
+            action={'add'}
+          />
+        );
+        setOpenDialogName('Add Service')
         handleOpen()
         //  console.log("Edit row:", row.EQUIPMENT_ID)
          }

@@ -3,16 +3,29 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button } from '@mui/material';
 import CustomDataGrid from '../components/DataGrid'
+import ReusableModal from "../components/DialogPopup";
 
 export default function AdminDashboard() {
   const [selectedPage, setSelectedPage] = useState(null);
   const [rows, setRows] = useState([]);
   const [columnDefs, setColumnDefs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+   const [openDialogName, setOpenDialogName] = useState('');
+   const [dialogContent, setDialogContent] = useState(null);
 
   useEffect(() => {
     handleLoadData('cmc');
   }, []);
+
+  const handleOpen = () => {
+    setIsModalOpen(true);
+    //console.log("Opening modal...");
+  };
+  const handleClose = () => {
+    setIsModalOpen(false);
+    // console.log("closing modal...");
+  }
 
   const handleLoadData = async (type) => {
     setSelectedPage(type);
@@ -202,9 +215,9 @@ export default function AdminDashboard() {
 
   ]
   const columnDefsServices = [
-    { headerName: "ID", field: "psa_id", width: 150 },
+    { headerName: "ID", field: "psa_id", width: 100 },
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
-    { headerName: "SERVICE PERIODICITY (HRS)", field: "service_hrs", width: 200 },
+    { headerName: "SERVICE(HRS)", field: "service_hrs", width: 100 },
     // { headerName: "STATE", field: "state", width: 150 },
     // { headerName: "CITY", field: "city", width: 150 },
     // { headerName: "AMC_CMC", field: "amc_cmc", width: 120 },
@@ -226,7 +239,7 @@ export default function AdminDashboard() {
     {
       headerName: "NEXT SERVICE DATE",
       field: "next_service_date",
-      width: 200,
+      width: 100,
       renderCell: (params) => {
         const { service_hrs, serviced_on } = params.row;
 
@@ -273,14 +286,12 @@ export default function AdminDashboard() {
 
       headerName: "DUE IN DAYS",
       field: "days_left",
-      width: 150,
+      width: 90,
       renderCell: (params) => {
         const { service_hrs, serviced_on } = params.row;
-
-
         if (!service_hrs || !serviced_on) return '';
         const serviceDays = Math.floor(service_hrs / 24);
-       
+
 
         const baseDate = new Date(serviced_on);
         const today = new Date();
@@ -297,8 +308,8 @@ export default function AdminDashboard() {
         // const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-        
-        const diff =serviceDays-diffDays
+
+        const diff = serviceDays - diffDays
         console.log('dif', diff)
 
         if (diff > 0 && diff < 30) {
@@ -332,7 +343,7 @@ export default function AdminDashboard() {
     {
       headerName: "ACTION",
       field: "action_required",
-      width: 180,
+      width: 150,
       renderCell: (params) => {
         const { end_date } = params.row;
 
@@ -365,7 +376,7 @@ export default function AdminDashboard() {
       }
     },
 
-    // { headerName: "ISACTIVE", field: 'is_active', width: 100 },
+    { headerName: "Remarks", field: 'notes', width: 100 },
     //{ headerName: "REMARKS", field: "remarks", width: 200 },
     {
       headerName: "ADD",
@@ -393,7 +404,35 @@ export default function AdminDashboard() {
           </button>
         );
       }
+    },
+    {
+      headerName: "UPLOAD ",
+      field: "upload_action",
+      width: 120,
+      renderCell: (params) => {
+        const handleClick = () => {
+          // You can replace this with any logic (e.g., open modal, navigate)
+          alert(`Add clicked for ID: ${params.row.psa_id}`);
+        };
+
+        return (
+          <button
+            style={{
+              backgroundColor: '#1976d2',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '6px 12px',
+              cursor: 'pointer',
+            }}
+            onClick={handleClick}
+          >
+            Upload Report
+          </button>
+        );
+      }
     }
+
 
   ]
   const initialColumnVisibility = {
@@ -434,7 +473,13 @@ export default function AdminDashboard() {
           Important Tasks
         </Button>
       </Box>
-
+      <ReusableModal
+        open={isModalOpen}
+        onClose={handleClose}
+        title={openDialogName}
+      >
+        {dialogContent}
+      </ReusableModal>
       <Box mt={3}>
         {selectedPage && (
           <CustomDataGrid rows={rows1}

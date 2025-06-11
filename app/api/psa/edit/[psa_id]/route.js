@@ -51,6 +51,7 @@ export async function PUT(request, context) {
       model,
       date_of_installation,
       date_of_purchase,
+      service_hrs,
       specification,
       remarks,
       is_active,
@@ -66,11 +67,12 @@ export async function PUT(request, context) {
         model = COALESCE($4, model),
         date_of_installation = COALESCE($5, date_of_installation),
         date_of_purchase = COALESCE($6, date_of_purchase),
-        specification = COALESCE($7, specification),
-        remarks = COALESCE($8, remarks),
-        is_active = COALESCE($9, is_active),
-        supplier = COALESCE($10, supplier) -- FIXED: Correct parameter index
-      WHERE psa_id = $11
+        service_hrs= COALESCE($7,  service_hrs),
+        specification = COALESCE($8, specification),
+        remarks = COALESCE($9, remarks),
+        is_active = COALESCE($10, is_active),
+        supplier = COALESCE($11, supplier) -- FIXED: Correct parameter index
+      WHERE psa_id = $12
       RETURNING *;
     `;
 
@@ -81,6 +83,7 @@ export async function PUT(request, context) {
       model || null,
       date_of_installation || null,
       date_of_purchase || null,
+      service_hrs || null,
       specification || null,
       remarks || null,
       is_active || null,
