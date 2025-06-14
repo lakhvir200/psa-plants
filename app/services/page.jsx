@@ -64,7 +64,7 @@ export default function ServicePage() {
     fetchEquipments();
   }, []);
 
- // console.log(equipments)
+  // console.log(equipments)
   // Debounced search function to prevent rapid API calls
   const loadData = debounce(async (filters) => {
     try {
@@ -91,9 +91,11 @@ export default function ServicePage() {
   }, [searchText]);
   const columnDefs = [
     { headerName: "ID", field: "psa_id", width: 100 },
-    { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
-    { headerName: "STATE", field: "state", width: 150 },
-    { headerName: "CITY", field: "city", width: 150 },
+    { headerName: "CUSTOMER NAME", field: "customer_name", width: 220 },
+
+    // { headerName: "STATE", field: "state", width: 120 },
+    { headerName: "CITY", field: "city", width: 120 },
+    { headerName: "SER_HRS", field: "service_hrs", width: 100 },
 
 
     {
@@ -110,21 +112,137 @@ export default function ServicePage() {
       }
     },
 
-    { headerName: " HOURS", field: "current_hrs", width: 100 },
+    { headerName: " RUN HOURS", field: "current_hrs", width: 100 },
 
-     { headerName: "Type of Service", field: 'notes', width: 100 },
-    { headerName: " IS_ACTIVE", field: "is_active", width: 100,
-      // renderCell: (params) => (
-      //   <input
-      //     type="checkbox"
-      //     checked={params.value}
-      //     enabled={params.value.toString()}
-      //   />
-      // ),
+
+    {
+      headerName: "NEXT SERVICE DATE",
+      field: "next_service_date",
+      width: 100,
+      renderCell: (params) => {
+        const { service_hrs, serviced_on } = params.row;
+
+        if (!service_hrs || !serviced_on) return '';
+
+        const baseDate = new Date(serviced_on);
+
+        // Convert hours to milliseconds
+        const nextServiceDate = new Date(baseDate.getTime() + service_hrs * 60 * 60 * 1000);
+
+        const day = String(nextServiceDate.getDate()).padStart(2, '0');
+        const month = String(nextServiceDate.getMonth() + 1).padStart(2, '0');
+        const year = nextServiceDate.getFullYear();
+
+        return `${day}-${month}-${year}`;
+      }
     },
 
+    {
+
+      headerName: "DUE IN DAYS",
+      field: "days_left",
+      width: 90,
+      renderCell: (params) => {
+        const { service_hrs, serviced_on } = params.row;
+        if (!service_hrs || !serviced_on) return '';
+        const serviceDays = Math.floor(service_hrs / 24);
+
+
+        const baseDate = new Date(serviced_on);
+        const today = new Date();
+
+        // Clear time to ensure accurate difference
+        baseDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        // Get the difference in milliseconds
+        const diffMs = today - baseDate;
+
+
+        // Convert milliseconds to hours
+        // const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+
+        const diff = serviceDays - diffDays
+        console.log('dif', diff)
+
+        if (diff > 0 && diff < 30) {
+          return (
+            <span style={{ color: 'orange', fontWeight: 'bold' }}>
+              -{diff} days
+            </span>
+          );
+        }
+
+        if (diff > 0) {
+          return (
+            <span style={{ color: 'green', fontWeight: 'bold' }}>
+              -{diff} days
+            </span>
+          );
+        }
+
+        if (diff < 0) {
+          return (
+            <span style={{ color: 'red', fontWeight: 'bold' }}>
+              +{Math.abs(diff)} days overdue
+            </span>
+          );
+        }
+
+        return <span style={{ fontWeight: 'bold' }}>Due Today</span>;
+      }
+    },
+
+    { headerName: "RATE", field: 'rate', width: 100 },
+    { headerName: "AMOUNT", field: 'amount', width: 100 },
+    { headerName: "REMARKS", field: 'notes', width: 250 },
+    {
+      headerName: "ADD",
+      field: "add_action",
+      width: 120,
+      renderCell: (params) => {
+        const handleClick = () => {
+          // You can replace this with any logic (e.g., open modal, navigate)
+          alert(`Add clicked for ID: ${params.row.id}`);
+
+          setDialogContent(
+            <EditService
+              id={params.row.id}
+              onClose={handleClose}
+              imageTitle={"update Image"}// Pass the close handler to the form
+
+            />
+          );
+          setOpenDialogName('Edit Service')
+          handleOpen()
+          // console.log("Edit row:", row.EQUIPMENT_ID)
+
+        };
+
+        return (
+          <button
+            style={{
+              backgroundColor: '#1976d2',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '6px 12px',
+              cursor: 'pointer',
+            }}
+            onClick={handleClick}
+          >
+            Add Service
+          </button>
+        );
+      }
+    },
+    
   ]
   const initialColumnVisibility = {
+    rate: false,
+    amount: false,
 
   };
 
@@ -135,13 +253,13 @@ export default function ServicePage() {
   const contextMenuItems = [
     {
       label: "Edit", action: (row) => {
-         console.log( row)
+        console.log(row)
         setDialogContent(
           <EditService
             id={row.id}
             onClose={handleClose}
             imageTitle={"update Image"}// Pass the close handler to the form
-            
+
           />
         );
         setOpenDialogName('Edit Service')

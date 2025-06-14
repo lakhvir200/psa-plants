@@ -154,6 +154,24 @@ export default function HomePage() {
         console.log("Edit row:", row)
         setDialogContent(
           <EditCmcForm
+            id={row.id}
+            psa_id={row.psa_id}
+            onClose={handleClose}// Pass the close handler to the form
+            action={'add'}
+          />
+        );
+        setOpenDialogName('Add CMC')
+        handleOpen()
+        //  console.log("Edit row:", row.EQUIPMENT_ID)
+         }
+    
+    },
+    {
+      label: "Add Repair", action: (row) => {
+        console.log("Edit row:", row)
+        setDialogContent(
+          <EditCmcForm
+            id={row.id}
             psa_id={row.psa_id}
             onClose={handleClose}// Pass the close handler to the form
             action={'add'}

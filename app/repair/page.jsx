@@ -6,12 +6,13 @@ import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextFiel
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ReusableModal from "../components/DialogPopup";
 import EditCMC from '../components/EditCmcForm.jsx'
+import EditService from '../components/EditServiceForm.jsx'
 import EquipmentDetail from '../components/EditCmcForm.jsx';
 import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
 import debounce from "lodash.debounce";
 import ExportToExcelButton from '../components/ExportToExcelButton.jsx';
 
-export default function CMCtPage() {
+export default function ServicePage() {
   const isFirstRender = useRef(true);
   // Filter states 
   const [equipments, setEquipments] = useState([]);
@@ -37,33 +38,33 @@ export default function CMCtPage() {
       setSearchText(e.target.value || "");
   }
   const fetchEquipments = async () => {
-      try {
-        const res = await fetch("/api/cmc");
-        const data = await res.json();
-        // console.log("Fetched data:", data);
+    try {
+      const res = await fetch("/api/services");
+      const data = await res.json();
+      // console.log("Fetched data:", data);
 
-        // ensure it’s an array and includes `id`
-        if (Array.isArray(data)) {
-          const formatted = data.map((item, index) => ({
-            id: item.id || index, // fallback to index
-            ...item,
-          }));
-          setEquipments(formatted);
-        } else {
-          console.warn("Expected array, got:", data);
-        }
-      } catch (error) {
-        console.error("Error fetching equipments:", error);
-      } finally {
-        setLoading(false);
+      // ensure it’s an array and includes `id`
+      if (Array.isArray(data)) {
+        const formatted = data.map((item, index) => ({
+          id: item.id || index, // fallback to index
+          ...item,
+        }));
+        setEquipments(formatted);
+      } else {
+        console.warn("Expected array, got:", data);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching equipments:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   // console.log(searchText)
-  useEffect(() => {    
+  useEffect(() => {
     fetchEquipments();
   }, []);
 
-  //console.log(equipments)
+ // console.log(equipments)
   // Debounced search function to prevent rapid API calls
   const loadData = debounce(async (filters) => {
     try {
@@ -89,15 +90,15 @@ export default function CMCtPage() {
     return () => loadData.cancel();
   }, [searchText]);
   const columnDefs = [
-    { headerName: "ID", field: "psa_id", width: 70 },
+    { headerName: "ID", field: "psa_id", width: 100 },
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
     { headerName: "STATE", field: "state", width: 150 },
     { headerName: "CITY", field: "city", width: 150 },
-    { headerName: "AMC_CMC", field: "amc_cmc", width: 80 },
+
 
     {
-      field: "start_date",
-      headerName: "START DATE",
+      field: "serviced_on",
+      headerName: "DATE OF SERVICE",
       width: 100,
       renderCell: (params) => {
         if (!params.value) return ''; // Handle null or undefined values    
@@ -108,28 +109,23 @@ export default function CMCtPage() {
         return `${day}-${month}-${year}`;
       }
     },
-    {
-      field: "end_date",
-      headerName: "END DATE",
-      width: 100,
-      renderCell: (params) => {
-        if (!params.value) return ''; // Handle null or undefined values    
-        const date = new Date(params.value); // Convert to Date object
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-        const year = date.getFullYear();
-        return `${day}-${month}-${year}`;
-      }
+
+    { headerName: " HOURS", field: "current_hrs", width: 100 },
+
+     { headerName: "Type of Service", field: 'notes', width: 100 },
+    { headerName: " IS_ACTIVE", field: "is_active", width: 100,
+      // renderCell: (params) => (
+      //   <input
+      //     type="checkbox"
+      //     checked={params.value}
+      //     enabled={params.value.toString()}
+      //   />
+      // ),
     },
-    { headerName: "RATE", field: "rate", width: 100 },
-    { headerName: "AMOUNT", field: "amount", width: 100 },
-    { headerName: "ISACTIVE", field: 'is_active', width: 75 },
-    { headerName: "REMARKS", field: "remarks", width: 200 },
 
   ]
   const initialColumnVisibility = {
-    rate: false,
-    amount: false,
+
   };
 
   const rows1 = equipments.map((item) => ({
@@ -139,34 +135,21 @@ export default function CMCtPage() {
   const contextMenuItems = [
     {
       label: "Edit", action: (row) => {
-        // console.log( row)
+         console.log( row)
         setDialogContent(
-          <EditCMC
+          <EditService
             id={row.id}
-            psa_id={row.psa_id}
             onClose={handleClose}
             imageTitle={"update Image"}// Pass the close handler to the form
+            
           />
         );
-        setOpenDialogName('Edit CMC')
+        setOpenDialogName('Edit Service')
         handleOpen()
         // console.log("Edit row:", row.EQUIPMENT_ID)
       }
     },
-    // {
-    //   label: "Clone", action: (row) => {
-    //     setDialogContent(
-    //       <EditCMC
-    //         equipmentId={row.psa_id}
-    //         onClose={handleClose}// Pass the close handler to the form
-    //         imageTitle={"update Image"}
-    //       />
-    //     );
-    //     setOpenDialogName('Clone Equipment')
-    //     handleOpen()
-    //     //  console.log("Edit row:", row.EQUIPMENT_ID)
-    //   }
-    // },
+
     {
       label: "View Detail", action: (row) => {
         setDialogContent(
@@ -185,7 +168,7 @@ export default function CMCtPage() {
 
         setDialogContent(
           <Upload
-            equipmentId={row.id}
+            equipmentId={row.psa_id}
             onClose={handleClose}// Pass the close handler to the form
           />
         );
@@ -203,7 +186,7 @@ export default function CMCtPage() {
         if (!confirmed) return;
 
         try {
-          const res = await fetch(`/api/cmc/edit/${row.id}`, {
+          const res = await fetch(`/api/services/edit/${row.id}`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
@@ -214,7 +197,7 @@ export default function CMCtPage() {
 
           if (res.ok) {
             alert('Deleted successfully');
-            
+
             // optionally refresh table data
             await fetchEquipments();; // Replace with your own data reload function
           } else {
@@ -241,7 +224,7 @@ export default function CMCtPage() {
   const exportData = rows1.map(({ id, ...rest }) => rest);
   return (
     <div style={{ padding: "5px", marginLeft: "5px", justifyContent: "center", alignItems: "center" }}>
-      <h3>CMC Detail</h3>
+      <h2>Services Detail</h2>
       {loading ? (
         <CircularProgress />
       ) : (

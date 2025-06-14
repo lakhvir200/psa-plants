@@ -6,7 +6,7 @@ import { Box, Button, Stack, Grid } from "@mui/material";
 import CheckBox from "../components/Checkbox";
 import ReusableInput from "../components/inputField1";
 import DatePickerField from "../components/Datepicker";
-export default function EditCmcForm({ onClose, psa_id, imageTitle, action }) {
+export default function EditCmcForm({ onClose, psa_id, imageTitle, action,id }) {
   console.log('action', action)
   const [equipmentData, setEquipmentData] = useState({});
   const [cmcData, setCmcData] = useState({});
@@ -14,7 +14,7 @@ export default function EditCmcForm({ onClose, psa_id, imageTitle, action }) {
   const [error, setError] = useState(null);
 
 useEffect(() => {
-  if (!psa_id) return;
+  if (!id) return;
 
   const fetchEquipmentData = async () => {
     try {
@@ -22,7 +22,7 @@ useEffect(() => {
 
       const endpoint = action === "add"
         ? `/api/psa/edit/${psa_id}`
-        : `/api/cmc/edit/${psa_id}`;
+        : `/api/cmc/edit/${id}`;
 
       const response = await fetch(endpoint);
 
@@ -41,7 +41,7 @@ useEffect(() => {
   };
 
   fetchEquipmentData();
-}, [psa_id, action]); // 👈 include action in dependencies
+}, [id, action]); // 👈 include action in dependencies
 
 
  // console.log(cmcData, equipmentData)
@@ -88,7 +88,7 @@ useEffect(() => {
     console.log("Updating equipment in database...", data);
 
     try {
-      const response = await fetch(`/api/cmc/edit/${data.psa_id}`, {
+      const response = await fetch(`/api/cmc/edit/${data.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

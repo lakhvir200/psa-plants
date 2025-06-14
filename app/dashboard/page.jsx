@@ -63,16 +63,16 @@ export default function AdminDashboard() {
     }
   };
   const columnDefsCMC = [
-    { headerName: "ID", field: "psa_id", width: 150 },
-    { headerName: "CUSTOMER NAME", field: "customer_name", width: 350 },
+    { headerName: "ID", field: "psa_id", width: 100 },
+    { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
     // { headerName: "STATE", field: "state", width: 150 },
     // { headerName: "CITY", field: "city", width: 150 },
-    { headerName: "AMC_CMC", field: "amc_cmc", width: 120 },
+    { headerName: "CMC", field: "amc_cmc", width: 80 },
 
     {
       field: "start_date",
       headerName: "START DATE",
-      width: 150,
+      width: 100,
       renderCell: (params) => {
         if (!params.value) return ''; // Handle null or undefined values    
         const date = new Date(params.value); // Convert to Date object
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
     {
       field: "end_date",
       headerName: "END DATE",
-      width: 150,
+      width: 100,
       renderCell: (params) => {
         if (!params.value) return ''; // Handle null or undefined values    
         const date = new Date(params.value); // Convert to Date object
@@ -184,7 +184,7 @@ export default function AdminDashboard() {
     },
 
     // { headerName: "ISACTIVE", field: 'is_active', width: 100 },
-    //{ headerName: "REMARKS", field: "remarks", width: 200 },
+    { headerName: "REMARKS", field: "remarks", width: 200 },
     {
       headerName: "ADD",
       field: "add_action",
@@ -208,11 +208,37 @@ export default function AdminDashboard() {
             onClick={handleClick}
           >
             Add
+          </button>          
+        );
+      }
+    },
+     {
+      headerName: "UPLOAD ",
+      field: "upload_action",
+      width: 120,
+      renderCell: (params) => {
+        const handleClick = () => {
+          // You can replace this with any logic (e.g., open modal, navigate)
+          alert(`Add clicked for ID: ${params.row.psa_id}`);
+        };
+
+        return (
+          <button
+            style={{
+              backgroundColor: '#1976d2',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '6px 12px',
+              cursor: 'pointer',
+            }}
+            onClick={handleClick}
+          >
+            Upload CMC
           </button>
         );
       }
     }
-
   ]
   const columnDefsServices = [
     { headerName: "ID", field: "psa_id", width: 100 },
