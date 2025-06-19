@@ -3,11 +3,32 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Stack, Grid } from "@mui/material";
 //import Grid from '../components/DataGrid';
+import ReusableModal from "../components/DialogPopup";
 import CheckBox from "../components/Checkbox";
 import ReusableInput from "../components/inputField1";
 import DatePickerField from "../components/Datepicker";
+import { useRouter } from 'next/navigation';
+import UploadServiceReport from '../components/EditServiceReport'
+
 export default function EditServiceForm({ onClose, id, imageTitle, action, psa_id }) {
-  console.log('action', action, id, psa_id)
+  const router = useRouter();
+
+ // console.log('action', action, id, psa_id)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [openDialogName, setOpenDialogName] = useState('');
+  const [equipmentId, setEquipmentId] = useState('');
+  const [dialogContent, setDialogContent] = useState(null);
+  const handleOpen = () => {
+    setIsModalOpen(true);
+    //console.log("Opening modal...");
+  };
+  const handleClose = () => {
+    setIsModalOpen(false);
+    // console.log("closing modal...");
+  }
+
+
+
   const [equipmentData, setEquipmentData] = useState({});
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -45,7 +66,7 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
   }, [id, action]); // 👈 include action in dependencies
 
 
-  console.log(data)
+ // console.log(data)
 
   if (!data) return <div>Loading...</div>;
 
@@ -149,7 +170,23 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
       alert("Failed to add data. Please try again.");
     }
   };
-
+  // const handleUploadClick = () => {
+  //   router.push('/upload/service_report');
+  // };
+  //console.log(id)
+  const handleUploadClick = () => {
+    //alert("id",id);
+    //console.log(id)
+    setDialogContent(
+      <UploadServiceReport
+        id={psa_id}
+        onClose={handleClose}
+        imageTitle={"Update Image"} // Optional: Adjust as needed
+      />
+    );
+    setOpenDialogName('Upload Service Report');
+    handleOpen();
+  };
   return (
     <form onSubmit={handleSubmit}>
       <Grid container spacing={2} sx={{ display: 'flex' }}>
@@ -167,6 +204,13 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
             {imageTitle || "Add Image"}
           </Button> */}
         </Grid>
+        <ReusableModal
+          open={isModalOpen}
+          onClose={handleClose}
+          title={openDialogName}
+        >
+          {dialogContent}
+        </ReusableModal>
 
         <Grid sx={{ width: '75%' }}>
           <Grid container spacing={2}>
@@ -206,10 +250,9 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
           <Grid container spacing={2} sx={{ width: '100%', marginTop: 2, alignItems: 'center' }}>
             {/* Left-aligned button */}
             <Grid item>
-              <Button variant="contained" color="primary" onClick={onClose}
+              <Button variant="contained" color="primary" onClick={handleUploadClick}>
 
-              >
-                Upload Service Report
+                Upload Report
               </Button>
             </Grid>
 
@@ -221,7 +264,7 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
               <Button variant="contained" color="primary" type="submit"
                 disabled={
                   !formData.current_hrs.trim() ||
-                  !formData.serviced_on.trim()                  
+                  !formData.serviced_on.trim()
                 }
               >
                 Submit

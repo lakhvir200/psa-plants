@@ -19,7 +19,7 @@ export async function GET() {
         service_records.psa_id = hospital_data.psa_id 
     
     ORDER BY   
-         service_records.psa_id;
+         service_records. serviced_on asc;
     `;
     const result = await pool.query(query );  
     if (!result.rows.length) {

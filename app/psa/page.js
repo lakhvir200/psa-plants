@@ -185,7 +185,7 @@ export default function HomePage() {
     },
     {
       label: "Add Service", action: (row) => {
-        console.log("Edit row:", row)
+        //console.log("Edit row:", row)
         setDialogContent(
           <EditServiceForm
             id={row.id}

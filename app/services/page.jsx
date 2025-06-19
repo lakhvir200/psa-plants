@@ -7,7 +7,10 @@ import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ReusableModal from "../components/DialogPopup";
 import EditCMC from '../components/EditCmcForm.jsx'
 import EditService from '../components/EditServiceForm.jsx'
-import EquipmentDetail from '../components/EditCmcForm.jsx';
+import UploadService from '../components/EditServiceReport'
+import ViewReports from '../components/ServiceDetail.js';
+
+
 import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
 import debounce from "lodash.debounce";
 import ExportToExcelButton from '../components/ExportToExcelButton.jsx';
@@ -141,7 +144,7 @@ export default function ServicePage() {
 
       headerName: "DUE IN DAYS",
       field: "days_left",
-      width: 90,
+      width: 150,
       renderCell: (params) => {
         const { service_hrs, serviced_on } = params.row;
         if (!service_hrs || !serviced_on) return '';
@@ -165,7 +168,7 @@ export default function ServicePage() {
 
 
         const diff = serviceDays - diffDays
-        console.log('dif', diff)
+        // console.log('dif', diff)
 
         if (diff > 0 && diff < 30) {
           return (
@@ -198,47 +201,89 @@ export default function ServicePage() {
     { headerName: "RATE", field: 'rate', width: 100 },
     { headerName: "AMOUNT", field: 'amount', width: 100 },
     { headerName: "REMARKS", field: 'notes', width: 250 },
-    {
-      headerName: "ADD",
-      field: "add_action",
-      width: 120,
-      renderCell: (params) => {
-        const handleClick = () => {
-          // You can replace this with any logic (e.g., open modal, navigate)
-          alert(`Add clicked for ID: ${params.row.id}`);
+    // {
+    //   headerName: "ADD",
+    //   field: "add_action",
+    //   width: 70,
+    //   renderCell: (params) => {
+    //     const handleClick = () => {
+    //       // You can replace this with any logic (e.g., open modal, navigate)
+    //       // alert(`Add clicked for ID: ${params.row.id}`);
 
-          setDialogContent(
-            <EditService
-              id={params.row.id}
-              onClose={handleClose}
-              imageTitle={"update Image"}// Pass the close handler to the form
+    //       setDialogContent(
+    //         <EditService
+    //           id={params.row.id}
+    //           onClose={handleClose}
+    //           imageTitle={"update Image"}// Pass the close handler to the form
 
-            />
-          );
-          setOpenDialogName('Edit Service')
-          handleOpen()
-          // console.log("Edit row:", row.EQUIPMENT_ID)
+    //         />
+    //       );
+    //       setOpenDialogName('Edit Service')
+    //       handleOpen()
+    //       // console.log("Edit row:", row.EQUIPMENT_ID)
 
-        };
+    //     };
 
-        return (
-          <button
-            style={{
-              backgroundColor: '#1976d2',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '6px 12px',
-              cursor: 'pointer',
-            }}
-            onClick={handleClick}
-          >
-            Add Service
-          </button>
-        );
-      }
-    },
-    
+    //     return (
+    //       <button
+    //         style={{
+    //           backgroundColor: '#1976d2',
+    //           color: '#fff',
+    //           border: 'none',
+    //           borderRadius: '4px',
+    //           padding: '6px 12px',
+    //           cursor: 'pointer',
+    //         }}
+    //         onClick={handleClick}
+    //       >
+    //         Add
+    //       </button>
+
+    //     );
+    //   }
+    // },
+    // {
+    //   headerName: "ADD",
+    //   field: "add_upload",
+    //   width: 120,
+    //   renderCell: (params) => {
+    //     const handleClick = () => {
+    //       // You can replace this with any logic (e.g., open modal, navigate)
+    //       // alert(`Add clicked for ID: ${params.row.id}`);
+
+    //       setDialogContent(
+    //         <UploadService
+    //           id={params.row.psa_id}
+    //           onClose={handleClose}
+    //           imageTitle={"update Image"}// Pass the close handler to the form
+
+    //         />
+    //       );
+    //       setOpenDialogName('Edit Service')
+    //       handleOpen()
+    //       // console.log("Edit row:", row.EQUIPMENT_ID)
+
+    //     };
+
+    //     return (
+    //       <button
+    //         style={{
+    //           backgroundColor: '#1976d2',
+    //           color: '#fff',
+    //           border: 'none',
+    //           borderRadius: '4px',
+    //           padding: '6px 12px',
+    //           cursor: 'pointer',
+    //         }}
+    //         onClick={handleClick}
+    //       >
+    //         Upload
+    //       </button>
+
+    //     );
+    //   }
+    // },
+
   ]
   const initialColumnVisibility = {
     rate: false,
@@ -252,13 +297,15 @@ export default function ServicePage() {
   }));
   const contextMenuItems = [
     {
-      label: "Edit", action: (row) => {
+      label: "Add", action: (row) => {
         console.log(row)
         setDialogContent(
           <EditService
             id={row.id}
+            psa_id={row.psa_id}
             onClose={handleClose}
             imageTitle={"update Image"}// Pass the close handler to the form
+
 
           />
         );
@@ -269,9 +316,9 @@ export default function ServicePage() {
     },
 
     {
-      label: "View Detail", action: (row) => {
+      label: "View Reports", action: (row) => {
         setDialogContent(
-          <EquipmentDetail
+          <ViewReports
             psa_id={row.psa_id}
             onClose={handleClose}// Pass the close handler to the form
           />
@@ -282,19 +329,20 @@ export default function ServicePage() {
       }
     },
     {
-      label: "Upload Document", action: (row) => {
+      label: "Upload Report", action: (row) => {
 
         setDialogContent(
-          <Upload
-            equipmentId={row.psa_id}
+          <UploadService
+            id={row.psa_id}
             onClose={handleClose}// Pass the close handler to the form
           />
         );
-        setOpenDialogName('Upload Document')
+        setOpenDialogName('Upload report')
         handleOpen()
         //  console.log("Edit row:", row.EQUIPMENT_ID)
       }
     },
+
     // { label: "Upload Image", action: (row) => console.log("Edit row:", row) },
     // { label: "Delete", action: (row) => console.log("Delete row:", row) },
 
