@@ -10,16 +10,15 @@ export async function GET(request, context) {
     await dbConnect();
     const query = `
       SELECT 
-        service_records.*, 
+        repair_maint.*, 
         hospital_data.customer_name, 
         hospital_data.model, 
         hospital_data.state, 
-        hospital_data.city,
-        hospital_data.service_hrs 
-      FROM service_records
+        hospital_data.city,        
+      FROM repair_maint
       INNER JOIN hospital_data 
-        ON service_records.psa_id = hospital_data.psa_id 
-      WHERE service_records.id = $1;
+        ON repair_maint.psa_id = hospital_data.psa_id 
+      WHERE repair_maint.id = $1;
     `;
     const values = [id];
     const result = await pool.query(query, values);
@@ -115,70 +114,71 @@ export async function GET(request, context) {
 //   }
 // }
 // PUT handler for inserting new record and deactivating the previous one
+
 export async function PUT(request, context) {
   const { id } = await context.params;
-  console.log("Received id to deactivate, and insert new record");
+  console.log("Received ID to update repair_maint record");
 
   try {
     await dbConnect();
     const data = await request.json();
+
     const {
-      current_hrs,
-      next_service_due,
-      notes,
-      serviced_on,
       psa_id,
-      rate,
-      amount,
+      repair_date,
+      fault_description,
+      action_taken,
+      status,
+      spare_used,
+      cost_of_spares,
+      attended_by,
+      remarks
     } = data;
 
     // Begin transaction
     await pool.query("BEGIN");
 
-    // Step 1: Mark previous record as inactive
-    const deactivateQuery = `
-      UPDATE service_records
-      SET is_active = false
-      WHERE id = $1;
-    `;
-    await pool.query(deactivateQuery, [id]);
-
-    // Step 2: Insert new record
-    const insertQuery = `
-      INSERT INTO service_records (
-        current_hrs,
-        is_active,
-        next_service_due,
-        notes,
-        serviced_on,
-        psa_id,
-        rate,
-        amount
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    // Update repair_maint record
+    const updateQuery = `
+      UPDATE repair_maint
+      SET
+        psa_id = $2,
+        repair_date = $3,
+        fault_description = $4,
+        action_taken = $5,
+        status = $6,
+        spare_used = $7,
+        cost_of_spares = $8,
+        attended_by = $9,
+        remarks = $10
+      WHERE id = $1
       RETURNING *;
     `;
-    const insertValues = [
-      current_hrs ?? null,
-      true, // new record should be active
-      next_service_due ?? null,
-      notes ?? null,
-      serviced_on ?? null,
-      psa_id ?? null,
-      rate ?? null,
-      amount ?? null,
+
+    const values = [
+      id,
+      psa_id,
+      repair_date,
+      fault_description,
+      action_taken,
+      status,
+      spare_used,
+      cost_of_spares,
+      attended_by,
+      remarks
     ];
 
-    const insertResult = await pool.query(insertQuery, insertValues);
+    const result = await pool.query(updateQuery, values);
 
     // Commit transaction
     await pool.query("COMMIT");
 
-    return new NextResponse(JSON.stringify(insertResult.rows[0]), {
-      status: 201,
+    return new NextResponse(JSON.stringify(result.rows[0]), {
+      status: 200,
       headers: { "Content-Type": "application/json" },
     });
+
   } catch (err) {
-    // Rollback on error
     await pool.query("ROLLBACK");
     console.error("Database Transaction Error:", err.message);
     return new NextResponse(
@@ -197,7 +197,7 @@ export async function DELETE(request, context) {
   try {
     await dbConnect();
     const query = `
-      DELETE FROM service_records
+      DELETE FROM repair_maint
       WHERE id = $1
       RETURNING *;
     `;

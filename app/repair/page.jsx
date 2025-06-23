@@ -39,7 +39,7 @@ export default function ServicePage() {
   }
   const fetchEquipments = async () => {
     try {
-      const res = await fetch("/api/services");
+      const res = await fetch("/api/repair");
       const data = await res.json();
       // console.log("Fetched data:", data);
 
@@ -64,7 +64,7 @@ export default function ServicePage() {
     fetchEquipments();
   }, []);
 
- // console.log(equipments)
+  console.log(equipments)
   // Debounced search function to prevent rapid API calls
   const loadData = debounce(async (filters) => {
     try {
@@ -90,15 +90,13 @@ export default function ServicePage() {
     return () => loadData.cancel();
   }, [searchText]);
   const columnDefs = [
-    { headerName: "ID", field: "psa_id", width: 100 },
-    { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
-    { headerName: "STATE", field: "state", width: 150 },
-    { headerName: "CITY", field: "city", width: 150 },
-
-
+    { headerName: "ID", field: "psa_id", width: 70 },
+    { headerName: "CUSTOMER NAME", field: "customer_name", width: 200 },
+    // { headerName: "STATE", field: "state", width: 150 },
+    // { headerName: "CITY", field: "city", width: 150 },
     {
-      field: "serviced_on",
-      headerName: "DATE OF SERVICE",
+      field: "repair_date",
+      headerName: "Date",
       width: 100,
       renderCell: (params) => {
         if (!params.value) return ''; // Handle null or undefined values    
@@ -110,18 +108,15 @@ export default function ServicePage() {
       }
     },
 
-    { headerName: " HOURS", field: "current_hrs", width: 100 },
+    { headerName: "Description", field: "fault_description", width: 180 },
 
-     { headerName: "Type of Service", field: 'notes', width: 100 },
-    { headerName: " IS_ACTIVE", field: "is_active", width: 100,
-      // renderCell: (params) => (
-      //   <input
-      //     type="checkbox"
-      //     checked={params.value}
-      //     enabled={params.value.toString()}
-      //   />
-      // ),
-    },
+    { headerName: "ACTION TAKEN", field: 'action_taken', width: 350 },
+    { headerName: "Status", field: "status", width: 100 },
+    { headerName: "Spare used", field: "spare_used", width: 100 },
+
+    { headerName: "Spares Cost", field: 'cost_of_spares', width: 100 },
+    {headerName: " Attended by", field: "attended_by", width: 100, },
+    {headerName: "Remarks", field: "remarks", width: 100, },
 
   ]
   const initialColumnVisibility = {
@@ -135,13 +130,13 @@ export default function ServicePage() {
   const contextMenuItems = [
     {
       label: "Edit", action: (row) => {
-         console.log( row)
+        console.log(row)
         setDialogContent(
           <EditService
             id={row.id}
             onClose={handleClose}
             imageTitle={"update Image"}// Pass the close handler to the form
-            
+
           />
         );
         setOpenDialogName('Edit Service')
@@ -224,7 +219,7 @@ export default function ServicePage() {
   const exportData = rows1.map(({ id, ...rest }) => rest);
   return (
     <div style={{ padding: "5px", marginLeft: "5px", justifyContent: "center", alignItems: "center" }}>
-      <h2>Services Detail</h2>
+      <h2>Repair Detail</h2>
       {loading ? (
         <CircularProgress />
       ) : (

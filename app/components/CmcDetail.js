@@ -28,7 +28,7 @@ export default function ServiceDetail({ id, psa_id }) {
   const fetchEquipments = async () => {
 
     try {
-      const res = await fetch(`/api/service-report/edit/${psa_id}`);
+      const res = await fetch(`/api/cmc-report/edit/${psa_id}`);
       const data = await res.json();
       console.log('data from back end', data);
 ///edit/${psa_id}
@@ -57,8 +57,8 @@ export default function ServiceDetail({ id, psa_id }) {
      { headerName: " ID", field: "id", width: 100 },
     { headerName: "PSA ID", field: "psa_id", width: 100 },
     {
-      field: "start_date",
-      headerName: "Start Date",
+      field: "service_date",
+      headerName: "Date of Service",
       width: 150,
       renderCell: (params) => {
         if (!params.value) return '';
@@ -66,17 +66,6 @@ export default function ServiceDetail({ id, psa_id }) {
         return date.toLocaleDateString('en-IN');
       },
     },
-    {
-      field: "end_date",
-      headerName: "End Date",
-      width: 150,
-      renderCell: (params) => {
-        if (!params.value) return '';
-        const date = new Date(params.value);
-        return date.toLocaleDateString('en-IN');
-      },
-    },
-    
     { headerName: "Remarks", field: "remarks", width: 250 },
     {
       field: "file_url",
@@ -104,68 +93,68 @@ export default function ServiceDetail({ id, psa_id }) {
     amount: false,
   };
 
-  // const contextMenuItems = [
-  //   {
-  //     label: "Add",
-  //     action: (row) => {
-  //       setDialogContent(
-  //         <EditService
-  //           id={row.id}
-  //           psa_id={row.psa_id}
-  //           onClose={handleClose}
-  //           imageTitle="Update Image"
-  //         />
-  //       );
-  //       setOpenDialogName("Edit Service");
-  //       handleOpen();
-  //     },
-  //   },
-  //   {
-  //     label: "View Reports",
-  //     action: (row) => {
-  //       setDialogContent(
-  //         <ViewReports psa_id={row.psa_id} onClose={handleClose} />
-  //       );
-  //       setOpenDialogName("View Reports");
-  //       handleOpen();
-  //     },
-  //   },
-  //   {
-  //     label: "Upload Report",
-  //     action: (row) => {
-  //       setDialogContent(
-  //         <UploadService id={row.psa_id} onClose={handleClose} />
-  //       );
-  //       setOpenDialogName("Upload Report");
-  //       handleOpen();
-  //     },
-  //   },
-  //   {
-  //     label: "Delete",
-  //     action: async (row) => {
-  //       const confirmed = window.confirm(`Delete PSA ID: ${row.psa_id}?`);
-  //       if (!confirmed) return;
+  const contextMenuItems = [
+    {
+      label: "Add",
+      action: (row) => {
+        setDialogContent(
+          <EditService
+            id={row.id}
+            psa_id={row.psa_id}
+            onClose={handleClose}
+            imageTitle="Update Image"
+          />
+        );
+        setOpenDialogName("Edit Service");
+        handleOpen();
+      },
+    },
+    {
+      label: "View Reports",
+      action: (row) => {
+        setDialogContent(
+          <ViewReports psa_id={row.psa_id} onClose={handleClose} />
+        );
+        setOpenDialogName("View Reports");
+        handleOpen();
+      },
+    },
+    {
+      label: "Upload Report",
+      action: (row) => {
+        setDialogContent(
+          <UploadService id={row.psa_id} onClose={handleClose} />
+        );
+        setOpenDialogName("Upload Report");
+        handleOpen();
+      },
+    },
+    {
+      label: "Delete",
+      action: async (row) => {
+        const confirmed = window.confirm(`Delete PSA ID: ${"47"}?`);
+        if (!confirmed) return;
 
-  //       try {
-  //         const res = await fetch(`/api/services/edit/${row.id}`, {
-  //           method: "DELETE",
-  //           headers: { "Content-Type": "application/json" },
-  //         });
-  //         const result = await res.json();
+        try {
+          const res = await fetch(`/api/cmc_reports/edit/${row.id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+          });
+          const result = await res.json();
 
-  //         if (res.ok) {
-  //           alert("Deleted successfully");
-  //           fetchEquipments();
-  //         } else {
-  //           alert(`Delete failed: ${result.message || result.error}`);
-  //         }
-  //       } catch (error) {
-  //         console.error("Delete error:", error);
-  //         alert("Error deleting.");
-  //       }
-  //     },
-  //   },
-  // ];
+          if (res.ok) {
+            alert("Deleted successfully");
+            fetchEquipments();
+          } else {
+            alert(`Delete failed: ${result.message || result.error}`);
+          }
+        } catch (error) {
+          console.error("Delete error:", error);
+          alert("Error deleting.");
+        }
+      },
+    },
+  ];
 
   const exportData = equipments.map(({ id, ...rest }) => rest);
 
@@ -183,7 +172,6 @@ export default function ServiceDetail({ id, psa_id }) {
               label="Export to XLS"
             />
           </Box>
-
           <ReusableModal
             open={isModalOpen}
             onClose={handleClose}
@@ -197,7 +185,7 @@ export default function ServiceDetail({ id, psa_id }) {
             columns={columnDefs}
             checkboxSelection={false}
             initialColumnVisibility={initialColumnVisibility}
-           // contextMenuItems={contextMenuItems}
+            contextMenuItems={contextMenuItems}
           />
         </Paper>
       )}

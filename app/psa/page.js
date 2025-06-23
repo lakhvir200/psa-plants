@@ -9,14 +9,16 @@ import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } fro
 import AddEquipment from '../psa/add/page.js'
 import EditEquipment from '../psa/edit/[psa_id]/page.js'
 import EditEquipmentForm from '../components/EditEquipmentForm.jsx';
-import EditCmcForm from '../components/EditCmcForm.jsx';
 import EditServiceForm from '../components/EditServiceForm.jsx';
 import DetailEquipmentForm from '../components/DetailEquipmentForm.jsx';
 import ExportToExcelButton from '../components/ExportToExcelButton.jsx';
+import EditServiceReport from '../components/EditServiceReport.js'
+import EditRepairForm from '../components/EditRepairForm.js'
 
 import debounce from "lodash.debounce";
 import Link from 'next/link';
 import EquipmentDetail from "../components/DetailEquipmentForm.jsx";
+
 
 export default function HomePage() {
   const [data, setData] = useState([]);
@@ -69,7 +71,7 @@ export default function HomePage() {
     id: item.psa_id,
     ...item,
   }));
-   //console.log(rows1)
+  //console.log(rows1)
   const columnDefs = [
     { headerName: "ID", field: "psa_id", width: 150 },
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
@@ -91,7 +93,7 @@ export default function HomePage() {
       }
     },
     { headerName: "Cost", field: "cost", width: 150 },
-     { headerName: "SERVICE HOURS", field: "service_hrs", width: 150 },
+    { headerName: "SERVICE HOURS", field: "service_hrs", width: 150 },
     { headerName: "STATE", field: "state", width: 150 },
     { headerName: "CITY", field: 'city', width: 150 },
 
@@ -114,13 +116,13 @@ export default function HomePage() {
   ]
   const initialColumnVisibility = {
     date_of_purchase: false,
-    cost:false,
+    cost: false,
     service_hrs: false
   };
   const contextMenuItems = [
     {
       label: "Edit", action: (row) => {
-       // console.log(row)
+        // console.log(row)
         setDialogContent(
           <EditEquipmentForm
             psa_id={row.psa_id}
@@ -163,14 +165,14 @@ export default function HomePage() {
         setOpenDialogName('Add CMC')
         handleOpen()
         //  console.log("Edit row:", row.EQUIPMENT_ID)
-         }
-    
+      }
+
     },
     {
       label: "Add Repair", action: (row) => {
         console.log("Edit row:", row)
         setDialogContent(
-          <EditCmcForm
+          <EditRepairForm
             id={row.id}
             psa_id={row.psa_id}
             onClose={handleClose}// Pass the close handler to the form
@@ -180,8 +182,8 @@ export default function HomePage() {
         setOpenDialogName('Add CMC')
         handleOpen()
         //  console.log("Edit row:", row.EQUIPMENT_ID)
-         }
-    
+      }
+
     },
     {
       label: "Add Service", action: (row) => {
@@ -197,8 +199,8 @@ export default function HomePage() {
         setOpenDialogName('Add Service')
         handleOpen()
         //  console.log("Edit row:", row.EQUIPMENT_ID)
-         }
-    
+      }
+
     },
     {
       label: "View Detail", action: (row) => {
@@ -214,10 +216,10 @@ export default function HomePage() {
       }
     },
     {
-      label: "Upload Document", action: (row) => {
+      label: "Upload service report", action: (row) => {
         setDialogContent(
-          <Upload
-            equipmentId={row.psa_id}
+          <EditServiceReport
+            id={row.psa_id}
             onClose={handleClose}// Pass the close handler to the form
           />
         );
@@ -226,8 +228,24 @@ export default function HomePage() {
         //  console.log("Edit row:", row.EQUIPMENT_ID)
       }
     },
-    { label: "Upload Image", action: (row) => console.log("Edit row:", row) },
-    { label: "Delete", action: (row) => console.log("Delete row:", row) },
+    // {
+    //   label: "Upload CMC", action: (row) => {
+    //     console.log(row.psa_id,row.start_date)
+    //     setDialogContent(
+    //       <EditCmc
+    //         id={row.psa_id}
+    //         start_date={row.start_date}
+    //         end_date={row.end_date}
+    //         onClose={handleClose}// Pass the close handler to the form
+    //       />
+    //     );
+    //     setOpenDialogName('Upload Document')
+    //     handleOpen()
+    //     //  console.log("Edit row:", row.EQUIPMENT_ID)
+    //   }
+    // },
+   // { label: "Upload Image", action: (row) => console.log("Edit row:", row) },
+    //{ label: "Delete", action: (row) => console.log("Delete row:", row) },
   ];
   const loadData = debounce(async (filters) => {
     try {
@@ -266,19 +284,19 @@ export default function HomePage() {
   }
 
   // console.log(equipments)
-  
- const AddNewEquipment = () => {
-  // Avoid putting this directly in render!
-  setDialogContent(
-    <EditEquipmentForm
-      psa_id={""}
-      insert="insert"
-      onClose={handleClose}
-    />
-  );
-  setOpenDialogName('Add Equipment');
-   handleOpen()
-};
+
+  const AddNewEquipment = () => {
+    // Avoid putting this directly in render!
+    setDialogContent(
+      <EditEquipmentForm
+        psa_id={""}
+        insert="insert"
+        onClose={handleClose}
+      />
+    );
+    setOpenDialogName('Add Equipment');
+    handleOpen()
+  };
 
 
   if (loading) return <p>Loading data...</p>;
@@ -331,8 +349,8 @@ export default function HomePage() {
 
             {/* Buttons */}
             <Box display="flex" gap={2} flexWrap="wrap" justifyContent="flex-end">
-              <ExportToExcelButton data={exportData}              
-              filename="exported-file" label="Export to XLS" />
+              <ExportToExcelButton data={exportData}
+                filename="exported-file" label="Export to XLS" />
               <Button
                 onClick={() => AddNewEquipment()}  // ← only runs when clicked
                 variant="contained"
@@ -340,7 +358,7 @@ export default function HomePage() {
               >
                 Add
               </Button>
-              
+
             </Box>
           </Box>
           <ReusableModal

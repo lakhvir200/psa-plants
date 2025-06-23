@@ -5,7 +5,8 @@ import { Container, Typography, CircularProgress, Grid } from '@mui/material';
 import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextField } from "@mui/material";
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ReusableModal from "../components/DialogPopup";
-import EditCMC from '../components/EditCmcForm.jsx'
+import UploadCMC from '../components/UploadCmc.js'
+import CmcDetail from '../components/CmcDetail.js'
 import EquipmentDetail from '../components/EditCmcForm.jsx';
 import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
 import debounce from "lodash.debounce";
@@ -123,7 +124,56 @@ export default function CMCtPage() {
     },
     { headerName: "RATE", field: "rate", width: 100 },
     { headerName: "AMOUNT", field: "amount", width: 100 },
-    { headerName: "ISACTIVE", field: 'is_active', width: 75 },
+    {
+      headerName: "DUE IN DAYS",
+      field: "days_left",
+      width: 150,
+      renderCell: (params) => {
+        const { end_date } = params.row;
+
+        if (!end_date) {
+          return (
+            <span style={{ color: 'red', fontWeight: 'bold' }}>
+              0
+            </span>
+          );
+        }
+
+        const endDate = new Date(end_date);
+        const today = new Date();
+        endDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        const diff = Math.floor((endDate - today) / (1000 * 60 * 60 * 24));
+
+        if (diff > 0 && diff < 30) {
+          return (
+            <span style={{ color: 'orange', fontWeight: 'bold' }}>
+              -{diff} days
+            </span>
+          );
+        }
+
+        if (diff > 0) {
+          return (
+            <span style={{ color: 'green', fontWeight: 'bold' }}>
+              -{diff} days
+            </span>
+          );
+        }
+
+        if (diff < 0) {
+          return (
+            <span style={{ color: 'red', fontWeight: 'bold' }}>
+              +{Math.abs(diff)} days overdue
+            </span>
+          );
+        }
+
+        return <span style={{ fontWeight: 'bold' }}>Due Today</span>;
+      }
+    },
+   // { headerName: "ISACTIVE", field: 'is_active', width: 75 },
     { headerName: "REMARKS", field: "remarks", width: 200 },
 
   ]
@@ -138,7 +188,7 @@ export default function CMCtPage() {
   }));
   const contextMenuItems = [
     {
-      label: "Edit", action: (row) => {
+      label: "Add", action: (row) => {
         // console.log( row)
         setDialogContent(
           <EditCMC
@@ -148,48 +198,37 @@ export default function CMCtPage() {
             imageTitle={"update Image"}// Pass the close handler to the form
           />
         );
-        setOpenDialogName('Edit CMC')
+        setOpenDialogName('Add CMC')
         handleOpen()
         // console.log("Edit row:", row.EQUIPMENT_ID)
       }
-    },
-    // {
-    //   label: "Clone", action: (row) => {
-    //     setDialogContent(
-    //       <EditCMC
-    //         equipmentId={row.psa_id}
-    //         onClose={handleClose}// Pass the close handler to the form
-    //         imageTitle={"update Image"}
-    //       />
-    //     );
-    //     setOpenDialogName('Clone Equipment')
-    //     handleOpen()
-    //     //  console.log("Edit row:", row.EQUIPMENT_ID)
-    //   }
-    // },
+    },    
     {
-      label: "View Detail", action: (row) => {
+      label: "View Records ", action: (row) => {
         setDialogContent(
-          <EquipmentDetail
+          <CmcDetail
+            id={row.id}
             psa_id={row.psa_id}
             onClose={handleClose}// Pass the close handler to the form
           />
         );
-        setOpenDialogName('View Detail')
+        setOpenDialogName('View CMC Records')
         handleOpen()
         //  console.log("Edit row:", row.EQUIPMENT_ID)
       }
     },
     {
-      label: "Upload Document", action: (row) => {
+      label: "Upload CMC", action: (row) => {
 
         setDialogContent(
-          <Upload
-            equipmentId={row.id}
-            onClose={handleClose}// Pass the close handler to the form
+          <UploadCMC
+          id={row.psa_id}
+          start_date={row.start_date}
+          end_date={row.end_date}
+          onClose={handleClose}// Pass the close handler to the form
           />
         );
-        setOpenDialogName('Upload Document')
+        setOpenDialogName('Upload CMC Document')
         handleOpen()
         //  console.log("Edit row:", row.EQUIPMENT_ID)
       }
@@ -228,15 +267,15 @@ export default function CMCtPage() {
     }
   ];
 
-  const AddNewEquipment = () => {
-    setDialogContent(
-      <EditCMC onClose={handleClose}
-        imageTitle={"Add Image"}
-      />
-    );
-    setOpenDialogName('Add Equipment');
-    handleOpen();
-  };
+  // const AddNewEquipment = () => {
+  //   setDialogContent(
+  //     <EditCMC onClose={handleClose}
+  //       imageTitle={"Add Image"}
+  //     />
+  //   );
+  //   setOpenDialogName('Add Equipment');
+  //   handleOpen();
+  // };
 
   const exportData = rows1.map(({ id, ...rest }) => rest);
   return (

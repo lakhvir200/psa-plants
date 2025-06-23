@@ -18,7 +18,7 @@ export async function GET() {
         cmc_amc.psa_id = hospital_data.psa_id 
     
     ORDER BY   
-         cmc_amc.psa_id;
+    end_date ;
     `;
     const result = await pool.query(query );  
     if (!result.rows.length) {

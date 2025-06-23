@@ -7,57 +7,59 @@ import CheckBox from "../components/Checkbox";
 import ReusableInput from "../components/inputField1";
 import DatePickerField from "../components/Datepicker";
 export default function EditServiceForm({ onClose, id, imageTitle, action, psa_id }) {
-  console.log('action', action,id, psa_id)
+  console.log('action', action, id, psa_id)
   const [equipmentData, setEquipmentData] = useState({});
-  const [data, setData] = useState({});
+  const [repairData, setRepairData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-useEffect(() => {
-  if (!id) return;
+  useEffect(() => {
+    if (!id) return;
 
-  const fetchEquipmentData = async () => {
-    try {
-      setLoading(true);
+    const fetchEquipmentData = async () => {
+      try {
+        setLoading(true);
 
-      const endpoint = action === "add"
-        ? `/api/psa/edit/${psa_id}`
-        : `/api/services/edit/${id}`;
+        const endpoint = action === "add"
+          ? `/api/psa/edit/${psa_id}`
+          : `/api/repiar/edit/${id}`;
 
-      const response = await fetch(endpoint);
+        const response = await fetch(endpoint);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch equipment data");
+        if (!response.ok) {
+          throw new Error("Failed to fetch equipment data");
+        }
+
+       
+        const data = await response.json();
+        const { remarks, ...rest } = data;
+        setRepairData(rest);
+
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const data = await response.json();
-      setData(data);
-
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchEquipmentData();
-}, [id, action]); // 👈 include action in dependencies
+    fetchEquipmentData();
+  }, [id, action]); // 👈 include action in dependencies
 
 
-  console.log(data)
+  console.log(repairData)
 
-  if (!data) return <div>Loading...</div>;
+  if (!repairData) return <div>Loading...</div>;
 
   const handleChangeText = (event) => {
     const { name, value } = event.target;
-    setData((prevState) => ({
+    setRepairData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
   };
 
   const handleChange = (e, value, name) => {
-    setData((prev) => ({
+    setRepairData((prev) => ({
       ...prev,
       [name || e.target.name]: value ?? e.target.value,
 
@@ -65,7 +67,7 @@ useEffect(() => {
   };
 
   const handleChangeCheckbox = (name, value) => {
-    setData((prev) => ({
+    setRepairData((prev) => ({
       ...prev,
       [name]: value,
 
@@ -76,22 +78,22 @@ useEffect(() => {
     event.preventDefault();
 
     if (action === "add") {
-      console.log("Adding new equipment:", data);
-     add(data); // Call function to add
+      console.log("Adding new equipment:", repairData);
+      add(repairData); // Call function to add
     } else {
       console.log("Updating equipment:", data);
-      update(data); // Call function to update
+      // update(repairData); // Call function to update
     }
   };
 
   const update = async (data) => {
-    console.log("Updating equipment in database...", data);
+    console.log("Updating equipment in database...", repairData);
     console.log(data.psa_id)
-    
+
 
     try {
       const response = await fetch(`/api/services/edit/${data.id}`, {
-        
+
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -120,7 +122,7 @@ useEffect(() => {
     console.log("Adding new equipment to the database...", data);
 
     try {
-      const response = await fetch(`/api/services/`, {
+      const response = await fetch(`/api/repair`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -137,7 +139,7 @@ useEffect(() => {
 
       // Show success alert
       alert("New equipment has been added successfully!");
-      window.location.href = "/services"; // Redirect after success
+      window.location.href = "/repair"; // Redirect after success
     } catch (error) {
       console.error("Error adding new equipment:", error.message);
       alert("Failed to add data. Please try again.");
@@ -166,38 +168,46 @@ useEffect(() => {
           <Grid container spacing={2}>
             <Grid sx={{ width: '30%' }}>
               <Stack spacing={2}>
-                <ReusableInput label="Customer Name" name="customer_name" inputValue={data.customer_name || ""} fullWidth />
-                <ReusableInput label="Model" name="model" inputValue={data.model || ""}  fullWidth />
-                <DatePickerField label="Last date of service" name="serviced_on" value={data. serviced_on|| ""} onChange={handleChange} fullWidth />                
-               
+                <ReusableInput label="PSA ID" name="psa_id" inputValue={repairData.psa_id || ""} fullWidth />
+                <DatePickerField label="Date of Repair" name="repair_date" value={repairData.repair_date || ""} onChange={handleChange} fullWidth />
+                <ReusableInput label="Fault Description" name="fault_description" onChange={handleChangeText} inputValue={repairData.fault_description || ""} fullWidth />
+                {/* <ReusableInput label="Model" name="model" inputValue={repairData.model || ""} fullWidth /> */}
+
+
               </Stack>
             </Grid>
 
             <Grid sx={{ width: '30%' }}>
               <Stack spacing={2}>
-                <ReusableInput label="City" name="city" inputValue={data.city || ""} fullWidth />
-                 <ReusableInput label="Current Hours" name="current_hrs" onChange={handleChangeText} inputValue={data.current_hrs || ""} fullWidth />
-                  <ReusableInput label="Rate" name="rate" onChange={handleChangeText} inputValue={data.rate || ""} fullWidth />
-                             
+                <ReusableInput label=" Status" name="status" onChange={handleChangeText} inputValue={repairData.status || ""} fullWidth />
+
+                <ReusableInput label=" Spare Used" name="spare_used" onChange={handleChangeText} inputValue={repairData.spare_used || ""} fullWidth />
+                <ReusableInput label="cost of spares" name="cost_of_spares" onChange={handleChangeText} inputValue={repairData.cost_of_spares || ""} fullWidth />
               </Stack>
             </Grid>
 
             <Grid sx={{ width: '30%' }}>
               <Stack spacing={2}>
-                <ReusableInput label="State" name="state" inputValue={data.state || ""} fullWidth />
-                
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <ReusableInput label="ID" name="psa_id" inputValue={data.psa_id || ""} fullWidth />
-                  <CheckBox name="is_active" label="Active" checked={data.is_active || false} onChange={handleChangeCheckbox} />
-                </Stack>
-                 <ReusableInput label="Amount" name="amount" onChange={handleChangeText} inputValue={data.amount || ""} fullWidth />
+                {/* <ReusableInput label="State" name="state" inputValue={repairData.state || ""} fullWidth /> */}
+
+                <ReusableInput label=" Attended By" name="attended_by" onChange={handleChangeText} inputValue={repairData.attended_by || ""} fullWidth />
+                {/* <ReusableInput label=" Action Taken" name=" action_taken" onChange={handleChangeText} inputValue={repairData.action_taken || ""} fullWidth />
+                <ReusableInput label=" Action Taken" name=" action_taken" onChange={handleChangeText} inputValue={repairData.action_taken || ""} fullWidth /> */}
+
+
               </Stack>
+
+
             </Grid>
-            
-            
+
+
 
             <Grid sx={{ width: '95%' }}>
-              <ReusableInput label="Remarks" name="notes" onChange={handleChangeText} inputValue={data.notes || ""} multiline rows={1} fullWidth />
+              <Stack spacing={2}>
+                <ReusableInput label="Action Taken" name="action_taken" onChange={handleChangeText} inputValue={repairData.action_taken || ""} multiline rows={2} fullWidth />
+                <ReusableInput label="Remarks" name="remarks" onChange={handleChangeText} inputValue={repairData.remarks || ""} multiline rows={1} fullWidth />
+
+              </Stack>
             </Grid>
           </Grid>
         </Grid>

@@ -323,7 +323,7 @@ export default function ServicePage() {
             onClose={handleClose}// Pass the close handler to the form
           />
         );
-        setOpenDialogName('View Detail')
+        setOpenDialogName('View Reports')
         handleOpen()
         //  console.log("Edit row:", row.EQUIPMENT_ID)
       }
@@ -389,7 +389,7 @@ export default function ServicePage() {
 
   const exportData = rows1.map(({ id, ...rest }) => rest);
   return (
-    <div style={{ padding: "5px", marginLeft: "5px", justifyContent: "center", alignItems: "center" }}>
+    <div style={{ marginLeft: "5px", justifyContent: "center", alignItems: "center" }}>
       <h2>Services Detail</h2>
       {loading ? (
         <CircularProgress />
