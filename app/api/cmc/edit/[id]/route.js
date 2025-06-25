@@ -157,7 +157,6 @@ export async function PUT(request, context) {
   ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
   RETURNING *;
 `;
-
     const insertValues = [
       amc_cmc ?? null,
       start_date ?? null,

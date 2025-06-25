@@ -42,7 +42,6 @@ export async function POST(request) {
 
     const data = await request.json();
     console.log("Received request data:", data);
-
     const {
       psa_id,
       amc_cmc,
@@ -53,7 +52,6 @@ export async function POST(request) {
       remarks,
       is_active
     } = data;
-
     if (!psa_id) {
       return new NextResponse(
         JSON.stringify({ error: "Missing psa_id in request body" }),
@@ -63,7 +61,6 @@ export async function POST(request) {
         }
       );
     }
-
     const query = `
       INSERT INTO public.cmc_amc (
         psa_id, amc_cmc, start_date, end_date, rate, amount, remarks, is_active
@@ -71,7 +68,6 @@ export async function POST(request) {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *;
     `;
-
     const values = [
       psa_id,
       amc_cmc || null,

@@ -14,6 +14,7 @@ import DetailEquipmentForm from '../components/DetailEquipmentForm.jsx';
 import ExportToExcelButton from '../components/ExportToExcelButton.jsx';
 import EditServiceReport from '../components/EditServiceReport.js'
 import EditRepairForm from '../components/EditRepairForm.js'
+import EditCmcForm from '../components/EditCmcForm.jsx'
 
 import debounce from "lodash.debounce";
 import Link from 'next/link';
@@ -156,7 +157,7 @@ export default function HomePage() {
         console.log("Edit row:", row)
         setDialogContent(
           <EditCmcForm
-            id={row.id}
+            id={row.id}            
             psa_id={row.psa_id}
             onClose={handleClose}// Pass the close handler to the form
             action={'add'}

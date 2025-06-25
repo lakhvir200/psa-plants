@@ -9,7 +9,7 @@ import UploadService from "../components/EditServiceReport";
 import ViewReports from "../service_report/page.js";
 import ExportToExcelButton from "../components/ExportToExcelButton.jsx";
 
-export default function ServiceDetail({ id, psa_id }) {
+export default function CmcDetail({ id, psa_id }) {
 
   console.log('id from back end ', id, psa_id)
   const isFirstRender = useRef(true);
@@ -136,7 +136,7 @@ export default function ServiceDetail({ id, psa_id }) {
         if (!confirmed) return;
 
         try {
-          const res = await fetch(`/api/cmc_reports/edit/${row.id}`, {
+          const res = await fetch(`/api/cmc-report/edit/${row.id}`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
           });

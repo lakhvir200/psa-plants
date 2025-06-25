@@ -6,6 +6,7 @@ import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextFiel
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ReusableModal from "../components/DialogPopup";
 import UploadCMC from '../components/UploadCmc.js'
+import EditCmcForm from '../components/EditCmcForm.jsx'
 import CmcDetail from '../components/CmcDetail.js'
 import EquipmentDetail from '../components/EditCmcForm.jsx';
 import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
@@ -188,13 +189,14 @@ export default function CMCtPage() {
   }));
   const contextMenuItems = [
     {
-      label: "Add", action: (row) => {
+      label: "Update CMC", action: (row) => {
         // console.log( row)
         setDialogContent(
-          <EditCMC
+          <EditCmcForm
             id={row.id}
             psa_id={row.psa_id}
             onClose={handleClose}
+            action={'update'}
             imageTitle={"update Image"}// Pass the close handler to the form
           />
         );
@@ -204,7 +206,25 @@ export default function CMCtPage() {
       }
     },    
     {
-      label: "View Records ", action: (row) => {
+      label: "CMC Contract Renewal", action: (row) => {
+        // console.log( row)
+        setDialogContent(
+          <EditCmcForm
+            id={row.id}
+            psa_id={row.psa_id}
+             action={'add'}
+            onClose={handleClose}
+            imageTitle={"update Image"}// Pass the close handler to the form
+          />
+        );
+        setOpenDialogName('Add CMC')
+        handleOpen()
+        // console.log("Edit row:", row.EQUIPMENT_ID)
+      }
+    },    
+    
+    {
+      label: "View Document ", action: (row) => {
         setDialogContent(
           <CmcDetail
             id={row.id}
@@ -218,7 +238,7 @@ export default function CMCtPage() {
       }
     },
     {
-      label: "Upload CMC", action: (row) => {
+      label: "Upload CMC document", action: (row) => {
 
         setDialogContent(
           <UploadCMC
