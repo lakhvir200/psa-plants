@@ -21,10 +21,12 @@ export async function POST(request) {
     console.log("Generated PSA ID:", newPsaId);
 
     const data = await request.json();
+   console.log('Received data1:', data);
     const {
       customer_name,
       state,
       model,
+      service_hrs,
       specification,
       remarks,
       date_of_purchase,
@@ -36,10 +38,10 @@ export async function POST(request) {
 
     const query = `
       INSERT INTO public."hospital_data" (
-        psa_id, customer_name, state, model, specification, remarks, 
+        psa_id,customer_name, state, model,service_hrs, specification, remarks, 
         date_of_purchase, date_of_installation, is_active, city, supplier, created_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW()
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,$12, NOW()
       ) RETURNING *;
     `;
 
@@ -48,6 +50,7 @@ export async function POST(request) {
       customer_name,
       state,
       model,
+      service_hrs,
       specification,
       remarks,
       date_of_purchase,

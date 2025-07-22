@@ -15,7 +15,7 @@ git push origin main
 
 
 git add .
-git commit -m "Repair added"
+git commit -m "Add problem solved"
 git push
 
 npm install -g vercel

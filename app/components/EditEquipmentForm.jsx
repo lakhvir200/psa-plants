@@ -65,7 +65,7 @@ export default function EditEquipmentForm({ psa_id, onClose,imageTitle,insert })
      event.preventDefault();  
      if (insert === "Clone" || !equipmentData.psa_id  ){
        console.log("Adding new equipment:", equipmentData);
-       insertEquipment(equipmentData); // Perform insert operation if cloning or psa_id is missing
+      insertEquipment(equipmentData); // Perform insert operation if cloning or psa_id is missing
      } else {
        console.log("Updating equipment:", equipmentData);
         console.log("Updating equipment:", equipmentData);
@@ -110,10 +110,10 @@ export default function EditEquipmentForm({ psa_id, onClose,imageTitle,insert })
            "Content-Type": "application/json",
          },
          body: JSON.stringify({
-           customerName: data.customerName,
+           customer_name: data.customer_name,
            state: data.state,
            model: data.model,
-           service_hrs,
+           service_hrs:data.service_hrs,
            specification: data.specification,
            remarks: data.remarks,
            dateOfPurchase: data.dateOfPurchase,
