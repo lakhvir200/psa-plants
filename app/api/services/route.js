@@ -1,27 +1,29 @@
 import dbConnect, { pool } from "../../util/dbpg";
 import { NextResponse } from "next/server";
-export async function GET() { 
-  try {  
+export async function GET() {
+  try {
     await dbConnect();
     const query = `
     SELECT 
-        service_records.*, 
-        hospital_data.customer_name, 
-        hospital_data.specification, 
-        hospital_data.state, 
-        hospital_data.city ,
-        hospital_data.service_hrs 
-    FROM  
-        service_records
-    INNER JOIN  
-        hospital_data 
-    ON  
-        service_records.psa_id = hospital_data.psa_id 
-    
-    ORDER BY   
-         service_records. serviced_on asc;
+    service_records.*, 
+    hospital_data.customer_name, 
+    hospital_data.specification, 
+    hospital_data.state, 
+    hospital_data.city,
+    hospital_data.service_hrs 
+FROM  
+    service_records
+INNER JOIN  
+    hospital_data 
+ON  
+    service_records.psa_id = hospital_data.psa_id 
+WHERE 
+     service_records.is_active = true
+ORDER BY   
+    service_records.serviced_on ASC;
+
     `;
-    const result = await pool.query(query );  
+    const result = await pool.query(query);
     if (!result.rows.length) {
       return NextResponse.json(
         { message: "No data found" },
@@ -43,7 +45,7 @@ export async function POST(request) {
     await dbConnect();
 
     const data = await request.json();
-   // console.log("Received request data:", data);
+    // console.log("Received request data:", data);
 
     const {
       current_hrs,

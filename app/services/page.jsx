@@ -201,88 +201,9 @@ export default function ServicePage() {
     { headerName: "RATE", field: 'rate', width: 100 },
     { headerName: "AMOUNT", field: 'amount', width: 100 },
     { headerName: "REMARKS", field: 'notes', width: 250 },
-    // {
-    //   headerName: "ADD",
-    //   field: "add_action",
-    //   width: 70,
-    //   renderCell: (params) => {
-    //     const handleClick = () => {
-    //       // You can replace this with any logic (e.g., open modal, navigate)
-    //       // alert(`Add clicked for ID: ${params.row.id}`);
-
-    //       setDialogContent(
-    //         <EditService
-    //           id={params.row.id}
-    //           onClose={handleClose}
-    //           imageTitle={"update Image"}// Pass the close handler to the form
-
-    //         />
-    //       );
-    //       setOpenDialogName('Edit Service')
-    //       handleOpen()
-    //       // console.log("Edit row:", row.EQUIPMENT_ID)
-
-    //     };
-
-    //     return (
-    //       <button
-    //         style={{
-    //           backgroundColor: '#1976d2',
-    //           color: '#fff',
-    //           border: 'none',
-    //           borderRadius: '4px',
-    //           padding: '6px 12px',
-    //           cursor: 'pointer',
-    //         }}
-    //         onClick={handleClick}
-    //       >
-    //         Add
-    //       </button>
-
-    //     );
-    //   }
-    // },
-    // {
-    //   headerName: "ADD",
-    //   field: "add_upload",
-    //   width: 120,
-    //   renderCell: (params) => {
-    //     const handleClick = () => {
-    //       // You can replace this with any logic (e.g., open modal, navigate)
-    //       // alert(`Add clicked for ID: ${params.row.id}`);
-
-    //       setDialogContent(
-    //         <UploadService
-    //           id={params.row.psa_id}
-    //           onClose={handleClose}
-    //           imageTitle={"update Image"}// Pass the close handler to the form
-
-    //         />
-    //       );
-    //       setOpenDialogName('Edit Service')
-    //       handleOpen()
-    //       // console.log("Edit row:", row.EQUIPMENT_ID)
-
-    //     };
-
-    //     return (
-    //       <button
-    //         style={{
-    //           backgroundColor: '#1976d2',
-    //           color: '#fff',
-    //           border: 'none',
-    //           borderRadius: '4px',
-    //           padding: '6px 12px',
-    //           cursor: 'pointer',
-    //         }}
-    //         onClick={handleClick}
-    //       >
-    //         Upload
-    //       </button>
-
-    //     );
-    //   }
-    // },
+   // { headerName: "Active", field: 'is_active', width: 250 },
+   
+   
 
   ]
   const initialColumnVisibility = {
@@ -297,7 +218,7 @@ export default function ServicePage() {
   }));
   const contextMenuItems = [
     {
-      label: "Add", action: (row) => {
+      label: "Update", action: (row) => {
         console.log(row)
         setDialogContent(
           <EditService

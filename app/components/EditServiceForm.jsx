@@ -103,16 +103,16 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
     };
 
     if (action === "add") {
-      console.log("Adding new equipment:", mergedData);
-      add(mergedData); // Call function to add
+      console.log("Adding new Service:", mergedData);
+     add(mergedData); // Call function to add
     } else {
       console.log("Updating equipment:", mergedData);
-      update(mergedData); // Call function to update
+     update(mergedData); // Call function to update
     }
   };
 
   const update = async (data) => {
-    console.log("Updating equipment in mergedDatabase...", data);
+    console.log("Updating equipment Service...", data);
     console.log(data.psa_id)
 
 

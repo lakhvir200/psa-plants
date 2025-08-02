@@ -23,7 +23,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <Box display="flex" justifyContent="flex-start" gap={2} mt={2}>
+      {/* <Box display="flex" justifyContent="flex-start" gap={2} mt={2}>
         <Button
           variant="contained"
           color="primary"
@@ -56,7 +56,16 @@ export default function AdminDashboard() {
         title={openDialogName}
       >
         {dialogContent}
-      </ReusableModal>
+      </ReusableModal> */}
+      <Box display="flex" justifyContent="center" gap={2} mt={2}>
+        <img
+          src="/images/MENTIS.jpg"
+          alt={"equipmentData.model"}
+          width={550}
+          height={550}
+          style={{ border: "1px solid #ccc", objectFit: "cover" }}
+        />
+      </Box>
     </div>
   );
 }
@@ -137,7 +146,7 @@ export default function AdminDashboard() {
 //       headerName: "START DATE",
 //       width: 100,
 //       renderCell: (params) => {
-//         if (!params.value) return ''; // Handle null or undefined values    
+//         if (!params.value) return ''; // Handle null or undefined values
 //         const date = new Date(params.value); // Convert to Date object
 //         const day = String(date.getDate()).padStart(2, '0');
 //         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
@@ -150,7 +159,7 @@ export default function AdminDashboard() {
 //       headerName: "END DATE",
 //       width: 100,
 //       renderCell: (params) => {
-//         if (!params.value) return ''; // Handle null or undefined values    
+//         if (!params.value) return ''; // Handle null or undefined values
 //         const date = new Date(params.value); // Convert to Date object
 //         const day = String(date.getDate()).padStart(2, '0');
 //         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
@@ -271,7 +280,7 @@ export default function AdminDashboard() {
 //             onClick={handleClick}
 //           >
 //             Add
-//           </button>          
+//           </button>
 //         );
 //       }
 //     },
@@ -316,7 +325,7 @@ export default function AdminDashboard() {
 //       headerName: "DATE OF SERVICE",
 //       width: 150,
 //       renderCell: (params) => {
-//         if (!params.value) return ''; // Handle null or undefined values    
+//         if (!params.value) return ''; // Handle null or undefined values
 //         const date = new Date(params.value); // Convert to Date object
 //         const day = String(date.getDate()).padStart(2, '0');
 //         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
