@@ -6,8 +6,9 @@ import { Box, Button, Stack, Grid } from "@mui/material";
 import CheckBox from "../components/Checkbox";
 import ReusableInput from "../components/inputField1";
 import DatePickerField from "../components/Datepicker";
-export default function EditServiceForm({ onClose, id, imageTitle, action, psa_id }) {
-  console.log('action', action, id, psa_id)
+
+export default function EditRepairForm({ onClose, id, imageTitle, action, psa_id }) {
+//  console.log('action', action, id, psa_id)
   const [equipmentData, setEquipmentData] = useState({});
   const [repairData, setRepairData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -22,17 +23,21 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
 
         const endpoint = action === "add"
           ? `/api/psa/edit/${psa_id}`
-          : `/api/repiar/edit/${id}`;
+          : action === "edit"
+            ? `/api/repair/edit/${id}`
+            : "";
 
         const response = await fetch(endpoint);
+
 
         if (!response.ok) {
           throw new Error("Failed to fetch equipment data");
         }
 
-       
+
         const data = await response.json();
         const { remarks, ...rest } = data;
+       // console.log(rest)
         setRepairData(rest);
 
       } catch (err) {
@@ -46,7 +51,7 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
   }, [id, action]); // 👈 include action in dependencies
 
 
-  console.log(repairData)
+//  console.log(repairData)
 
   if (!repairData) return <div>Loading...</div>;
 
@@ -81,18 +86,20 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
       console.log("Adding new equipment:", repairData);
       add(repairData); // Call function to add
     } else {
-      console.log("Updating equipment:", data);
-      // update(repairData); // Call function to update
+      console.log("Updating equipment:", repairData);
+        
+      update(repairData); // Call function to update
     }
   };
 
   const update = async (data) => {
-    console.log("Updating equipment in database...", repairData);
+    console.log("Updating Repair in database...", repairData);
     console.log(data.psa_id)
 
 
     try {
-      const response = await fetch(`/api/services/edit/${data.id}`, {
+      console.log( 'id',id)
+      const response = await fetch(`/api/repair/edit/${id}`, {
 
         method: "PUT",
         headers: {
@@ -102,24 +109,24 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update equipment");
+        throw new Error("Failed to update Repair");
       }
 
       const result = await response.json();
       console.log("Update successful", result);
 
       // Show success alert
-      alert("Data has been updated successfully!");
-      window.location.href = "/services";
+      alert("Repair has been updated successfully!");
+      window.location.href = "/repair";
     } catch (error) {
-      console.error("Error updating equipment:", error.message);
+      console.error("Error updating Repair:", error.message);
       alert("Failed to update data. Please try again.");
     }
   };
 
 
   const add = async (data) => {
-    console.log("Adding new equipment to the database...", data);
+    console.log("Adding Repair to the database...", data);
 
     try {
       const response = await fetch(`/api/repair`, {
@@ -138,7 +145,7 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
       console.log("Addition successful", result);
 
       // Show success alert
-      alert("New equipment has been added successfully!");
+      alert("Repair has been added successfully!");
       window.location.href = "/repair"; // Redirect after success
     } catch (error) {
       console.error("Error adding new equipment:", error.message);

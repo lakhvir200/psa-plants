@@ -6,8 +6,8 @@ import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextFiel
 import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
 import ReusableModal from "../components/DialogPopup";
 import EditCMC from '../components/EditCmcForm.jsx'
-import EditService from '../components/EditServiceForm.jsx'
-import EquipmentDetail from '../components/EditCmcForm.jsx';
+import EditRepair from '../components/EditRepairForm.js'
+import EquipmentDetail from '../components/DetailEquipmentForm.jsx';
 import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
 import debounce from "lodash.debounce";
 import ExportToExcelButton from '../components/ExportToExcelButton.jsx';
@@ -130,10 +130,11 @@ export default function ServicePage() {
   const contextMenuItems = [
     {
       label: "Edit", action: (row) => {
-        console.log(row)
+        console.log(row.id)
         setDialogContent(
-          <EditService
+          <EditRepair
             id={row.id}
+            action={'edit'}
             onClose={handleClose}
             imageTitle={"update Image"}// Pass the close handler to the form
 
@@ -158,52 +159,52 @@ export default function ServicePage() {
         //  console.log("Edit row:", row.EQUIPMENT_ID)
       }
     },
-    {
-      label: "Upload Document", action: (row) => {
+    // {
+    //   label: "Upload Document", action: (row) => {
 
-        setDialogContent(
-          <Upload
-            equipmentId={row.psa_id}
-            onClose={handleClose}// Pass the close handler to the form
-          />
-        );
-        setOpenDialogName('Upload Document')
-        handleOpen()
-        //  console.log("Edit row:", row.EQUIPMENT_ID)
-      }
-    },
-    // { label: "Upload Image", action: (row) => console.log("Edit row:", row) },
-    // { label: "Delete", action: (row) => console.log("Delete row:", row) },
+    //     setDialogContent(
+    //       <Upload
+    //         equipmentId={row.psa_id}
+    //         onClose={handleClose}// Pass the close handler to the form
+    //       />
+    //     );
+    //     setOpenDialogName('Upload Document')
+    //     handleOpen()
+    //     //  console.log("Edit row:", row.EQUIPMENT_ID)
+    //   }
+    // },
+    // // { label: "Upload Image", action: (row) => console.log("Edit row:", row) },
+    // // { label: "Delete", action: (row) => console.log("Delete row:", row) },
 
-    {
-      label: "Delete", action: async (row) => {
-        const confirmed = window.confirm(`Are you sure you want to delete PSA ID: ${row.id}?`);
-        if (!confirmed) return;
+    // {
+    //   label: "Delete", action: async (row) => {
+    //     const confirmed = window.confirm(`Are you sure you want to delete PSA ID: ${row.id}?`);
+    //     if (!confirmed) return;
 
-        try {
-          const res = await fetch(`/api/services/edit/${row.id}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
+    //     try {
+    //       const res = await fetch(`/api/services/edit/${row.id}`, {
+    //         method: 'DELETE',
+    //         headers: {
+    //           'Content-Type': 'application/json',
+    //         },
+    //       });
 
-          const result = await res.json();
+    //       const result = await res.json();
 
-          if (res.ok) {
-            alert('Deleted successfully');
+    //       if (res.ok) {
+    //         alert('Deleted successfully');
 
-            // optionally refresh table data
-            await fetchEquipments();; // Replace with your own data reload function
-          } else {
-            alert(`Delete failed: ${result.message || result.error}`);
-          }
-        } catch (error) {
-          console.error("Delete error:", error);
-          alert("Something went wrong while deleting.");
-        }
-      }
-    }
+    //         // optionally refresh table data
+    //         await fetchEquipments();; // Replace with your own data reload function
+    //       } else {
+    //         alert(`Delete failed: ${result.message || result.error}`);
+    //       }
+    //     } catch (error) {
+    //       console.error("Delete error:", error);
+    //       alert("Something went wrong while deleting.");
+    //     }
+    //   }
+    // }
   ];
 
   const AddNewEquipment = () => {

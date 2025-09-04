@@ -12,11 +12,10 @@ git add app/documents app/util/dbpg.js next.config.ts
 git commit -m "Updated dbpg config and removed experimental set module"
 git push origin main
 
-
-
 git add .
-git commit -m "Add problem solved"
+git commit -m "Repair data Update solved"
 git push
+
 
 npm install -g vercel
 vercel login

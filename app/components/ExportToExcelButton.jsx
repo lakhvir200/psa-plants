@@ -15,37 +15,45 @@ const ExportToExcelButton = ({ data, filename = 'export', label = 'Export to XLS
     return `${day}-${month}-${year}`;
   };
 
-  const handleExport = () => {
-    if (!data || data.length === 0) {
-      alert('No data to export.');
-      return;
-    }
+ const handleExport = () => {
+  if (!data || data.length === 0) {
+    alert('No data to export.');
+    return;
+  }
+// console.log("Export Data:", data); // 👈 log here
+// console.table(data);
+  const isDateString = (value) =>
+    typeof value === 'string' && !isNaN(Date.parse(value));
 
-    // Format date fields
-    const formattedData = data.map((row) => ({
-      ...row,
-      date_of_purchase: formatDate(row.date_of_purchase),
-      date_of_installation: formatDate(row.date_of_installation),
-      created_at: formatDate(row.created_at),
-    }));
-
-    // Convert JSON to worksheet
-    const worksheet = XLSX.utils.json_to_sheet(formattedData);
-
-    // Convert headers to uppercase
-    const range = XLSX.utils.decode_range(worksheet['!ref']);
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      const address = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (worksheet[address] && worksheet[address].v) {
-        worksheet[address].v = String(worksheet[address].v).toUpperCase();
+  // Format date-like fields dynamically
+  const formattedData = data.map((row) => {
+    const formattedRow = { ...row };
+    for (const key in formattedRow) {
+      if (isDateString(formattedRow[key])) {
+        formattedRow[key] = formatDate(formattedRow[key]);
       }
     }
+    return formattedRow;
+  });
 
-    // Create and export workbook
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-    XLSX.writeFile(workbook, `${filename}.xlsx`);
-  };
+  // Convert JSON to worksheet
+  const worksheet = XLSX.utils.json_to_sheet(formattedData);
+
+  // Convert headers to uppercase
+  const range = XLSX.utils.decode_range(worksheet['!ref']);
+  for (let C = range.s.c; C <= range.e.c; ++C) {
+    const address = XLSX.utils.encode_cell({ r: 0, c: C });
+    if (worksheet[address] && worksheet[address].v) {
+      worksheet[address].v = String(worksheet[address].v).toUpperCase();
+    }
+  }
+
+  // Create and export workbook
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  XLSX.writeFile(workbook, `${filename}.xlsx`);
+};
+
 
   return (
     <Button

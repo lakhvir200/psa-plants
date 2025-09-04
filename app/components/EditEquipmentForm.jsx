@@ -16,7 +16,22 @@ export default function EditEquipmentForm({ psa_id, onClose,imageTitle,insert })
    const [equipmentData, setEquipmentData] = useState({});
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState(null);
- 
+   const mandatoryFields = [
+    "customer_name",
+    "specification",
+    "state",
+    "city",
+    "model",
+    "service_hrs"
+  ];
+  // ✅ Function to check if all mandatory fields are filled
+  const isFormValid = () => {
+    return mandatoryFields.every((field) => {
+      const value = equipmentData[field];
+      return value !== undefined && value !== null && value.toString().trim() !== "";
+    });
+  };
+
    useEffect(() => {
      if (!psa_id) return;
      const fetchEquipmentData = async () => {
@@ -191,9 +206,7 @@ export default function EditEquipmentForm({ psa_id, onClose,imageTitle,insert })
                </Stack>
              </Grid>
                </Stack>
-             </Grid>
-             
-             
+             </Grid>            
  
              <Grid sx={{ width: '45%' }}>
                <ReusableInput label="Specification" name="specification" onChange={handleChangeText} inputValue={equipmentData.specification || ""} multiline rows={2} fullWidth />
@@ -211,7 +224,8 @@ export default function EditEquipmentForm({ psa_id, onClose,imageTitle,insert })
  
          <Grid container justifyContent="flex-end" spacing={2} sx={{ width: '100%', marginTop: 2 }}>
            <Grid>
-             <Button variant="contained" color="primary" type="submit">
+             <Button variant="contained" color="primary" type="submit"
+              disabled={!isFormValid()}>
                Submit
              </Button>
            </Grid>

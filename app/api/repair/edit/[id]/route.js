@@ -1,20 +1,18 @@
 import dbConnect, { pool } from "../../../../util/dbpg";
 import { NextResponse } from "next/server";
 
-// GET handler for fetching service record by ID
 export async function GET(request, context) {
-  const { id } = await context.params;
+  const { id } = context.params;
   console.log("Got id from frontend:", id);
 
   try {
-    await dbConnect();
     const query = `
       SELECT 
         repair_maint.*, 
         hospital_data.customer_name, 
         hospital_data.model, 
         hospital_data.state, 
-        hospital_data.city,        
+        hospital_data.city
       FROM repair_maint
       INNER JOIN hospital_data 
         ON repair_maint.psa_id = hospital_data.psa_id 
@@ -24,16 +22,16 @@ export async function GET(request, context) {
     const result = await pool.query(query, values);
 
     if (!result.rows || result.rows.length === 0) {
-      return new NextResponse(JSON.stringify({ message: "No data found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new NextResponse(
+        JSON.stringify({ message: "No data found" }),
+        { status: 404, headers: { "Content-Type": "application/json" } }
+      );
     }
 
-    return new NextResponse(JSON.stringify(result.rows[0]), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new NextResponse(
+      JSON.stringify(result.rows[0]),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   } catch (err) {
     console.error("Database Query Error:", err.message);
     return new NextResponse(
