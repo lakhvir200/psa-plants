@@ -57,8 +57,8 @@ export default function Navbar() {
           Repair/Maint
         </button>
         <button
-          className={`${styles.navButton} ${currentPath === "/task" ? styles.active : ""}`}
-          onClick={() => router.push("/cmc")}
+          className={`${styles.navButton} ${currentPath === "/tasks" ? styles.active : ""}`}
+          onClick={() => router.push("/tasks")}
         >
          Tasks
         </button>
