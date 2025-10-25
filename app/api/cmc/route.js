@@ -8,6 +8,7 @@ export async function GET() {
         cmc_amc.*, 
         hospital_data.customer_name, 
         hospital_data.specification, 
+        hospital_data.model, 
         hospital_data.state, 
         hospital_data.city 
     FROM  

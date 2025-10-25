@@ -93,6 +93,7 @@ export default function CMCtPage() {
   const columnDefs = [
     { headerName: "ID", field: "psa_id", width: 70 },
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 250 },
+    { headerName: "MODEL", field: "model", width: 100 },
     { headerName: "STATE", field: "state", width: 150 },
     { headerName: "CITY", field: "city", width: 150 },
     { headerName: "AMC_CMC", field: "amc_cmc", width: 80 },

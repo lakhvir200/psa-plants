@@ -95,6 +95,7 @@ export default function ServicePage() {
   const columnDefs = [
     { headerName: "ID", field: "psa_id", width: 100 },
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 220 },
+     { headerName: "Model", field: "model", width: 100 },
 
     // { headerName: "STATE", field: "state", width: 120 },
     { headerName: "CITY", field: "city", width: 120 },

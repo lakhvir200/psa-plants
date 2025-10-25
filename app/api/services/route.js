@@ -8,6 +8,7 @@ export async function GET() {
     service_records.*, 
     hospital_data.customer_name, 
     hospital_data.specification, 
+    hospital_data.model, 
     hospital_data.state, 
     hospital_data.city,
     hospital_data.service_hrs 
