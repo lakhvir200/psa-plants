@@ -98,3 +98,24 @@ export const fetchSearchHospitalData = async (filters = {}) => {
     throw error;
   }
 };
+export const serviceData = async (filters = {}) => {
+  try {
+    let endpoint = `/api/services`;
+    //console.log(filters,'hi')
+    // Build query string if filters exist
+    const queryParams = new URLSearchParams(
+      Object.entries(filters).filter(([_, value]) => value)
+    ).toString();
+   console.log(queryParams)
+    if (queryParams) {
+      endpoint += `/search?${queryParams}`;
+    }
+    console.log("Fetching data from:", endpoint);
+    const response = await axios.get(endpoint);
+    return response.data;
+  } catch (error) {
+    
+    console.error('Error fetching equipment data:', error?.response || error.message);
+    throw error;
+  }
+};

@@ -11,7 +11,7 @@ import UploadService from '../components/EditServiceReport'
 import ViewReports from '../components/ServiceDetail.js';
 
 
-import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData } from '../util/api.js';
+import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData,serviceData } from '../util/api.js';
 import debounce from "lodash.debounce";
 import ExportToExcelButton from '../components/ExportToExcelButton.jsx';
 
@@ -28,6 +28,8 @@ export default function ServicePage() {
   const [openDialogName, setOpenDialogName] = useState('');
   const [equipmentId, setEquipmentId] = useState('');
   const [dialogContent, setDialogContent] = useState(null);
+  const [columnDefs, setColumnDefs] = useState('');
+  const [allEquipments, setAllEquipments] = useState([]);
   const handleOpen = () => {
     setIsModalOpen(true);
     //console.log("Opening modal...");
@@ -40,7 +42,9 @@ export default function ServicePage() {
     if (e.target.value.length === 0 || e.target.value.length > 2)
       setSearchText(e.target.value || "");
   }
-  const fetchEquipments = async () => {
+  const fetchServices = async () => {
+     setLoading(true);
+    
     try {
       const res = await fetch("/api/services");
       const data = await res.json();
@@ -52,7 +56,10 @@ export default function ServicePage() {
           id: item.id || index, // fallback to index
           ...item,
         }));
+        setAllEquipments(formatted);  
         setEquipments(formatted);
+        setColumnDefs(joinedColumnDefs);
+
       } else {
         console.warn("Expected array, got:", data);
       }
@@ -64,7 +71,8 @@ export default function ServicePage() {
   };
   // console.log(searchText)
   useEffect(() => {
-    fetchEquipments();
+    fetchServices();
+    
   }, []);
 
   // console.log(equipments)
@@ -78,24 +86,45 @@ export default function ServicePage() {
       console.error("Error loading data:", error);
     }
   }, 300); // Debounce delay in milliseconds
-  useEffect(() => {
-    const filters = {
-      search: searchText || null,
+  // useEffect(() => {
+  //   const filters = {
+  //     search: searchText || null,
 
-    };
-    // Skip the first render
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    loadData(filters);
-    // Cleanup debounce on unmount
-    return () => loadData.cancel();
-  }, [searchText]);
-  const columnDefs = [
+  //   };
+  //   // Skip the first render
+  //   if (isFirstRender.current) {
+  //     isFirstRender.current = false;
+  //     return;
+  //   }
+  //   loadData(filters);
+  //   // Cleanup debounce on unmount
+  //   return () => loadData.cancel();
+  // }, [searchText]);
+
+  useEffect(() => {
+  if (!searchText.trim()) {
+    setEquipments(allEquipments);
+    return;
+  }
+
+  const term = searchText.toLowerCase();
+
+  const filtered = allEquipments.filter(item =>
+    item.customer_name?.toLowerCase().includes(term) ||
+    item.city?.toLowerCase().includes(term) ||
+    item.state?.toLowerCase().includes(term) ||
+    item.model?.toLowerCase().includes(term) ||
+    item.psa_id?.toLowerCase().includes(term) ||
+    item.nature_of_service?.toLowerCase().includes(term)
+  );
+
+  setEquipments(filtered);
+
+}, [searchText, allEquipments]);
+  const joinedColumnDefs = [
     { headerName: "ID", field: "psa_id", width: 100 },
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 220 },
-     { headerName: "Model", field: "model", width: 100 },
+    { headerName: "Model", field: "model", width: 100 },
 
     // { headerName: "STATE", field: "state", width: 120 },
     { headerName: "CITY", field: "city", width: 120 },
@@ -115,8 +144,8 @@ export default function ServicePage() {
         return `${day}-${month}-${year}`;
       }
     },
-
-    { headerName: " RUN HOURS", field: "current_hrs", width: 100 },
+    { headerName: "Nature Of Service", field: "nature_of_service", width: 100 },
+    { headerName: "RUN HOURS", field: "current_hrs", width: 100 },
 
 
     {
@@ -202,9 +231,124 @@ export default function ServicePage() {
     { headerName: "RATE", field: 'rate', width: 100 },
     { headerName: "AMOUNT", field: 'amount', width: 100 },
     { headerName: "REMARKS", field: 'notes', width: 250 },
-   // { headerName: "Active", field: 'is_active', width: 250 },
-   
-   
+    // { headerName: "Active", field: 'is_active', width: 250 },
+
+
+
+  ]
+  const recordOnlyColumnDefs = [
+    { headerName: "ID", field: "psa_id", width: 100 },
+    { headerName: "CUSTOMER NAME", field: "customer_name", width: 220 },
+    { headerName: "Model", field: "model", width: 100 },
+
+    // { headerName: "STATE", field: "state", width: 120 },
+    { headerName: "CITY", field: "city", width: 120 },
+    { headerName: "SER_HRS", field: "service_hrs", width: 100 },
+
+
+    {
+      field: "serviced_on",
+      headerName: "DATE OF SERVICE",
+      width: 100,
+      renderCell: (params) => {
+        if (!params.value) return ''; // Handle null or undefined values    
+        const date = new Date(params.value); // Convert to Date object
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+      }
+    },
+    { headerName: "Nature Of Service", field: "nature_of_service", width: 100 },
+    { headerName: "RUN HOURS", field: "current_hrs", width: 100 },
+
+
+    // {
+    //   headerName: "NEXT SERVICE DATE",
+    //   field: "next_service_date",
+    //   width: 100,
+    //   renderCell: (params) => {
+    //     const { service_hrs, serviced_on } = params.row;
+
+    //     if (!service_hrs || !serviced_on) return '';
+
+    //     const baseDate = new Date(serviced_on);
+
+    //     // Convert hours to milliseconds
+    //     const nextServiceDate = new Date(baseDate.getTime() + service_hrs * 60 * 60 * 1000);
+
+    //     const day = String(nextServiceDate.getDate()).padStart(2, '0');
+    //     const month = String(nextServiceDate.getMonth() + 1).padStart(2, '0');
+    //     const year = nextServiceDate.getFullYear();
+
+    //     return `${day}-${month}-${year}`;
+    //   }
+    // },
+
+    // {
+
+    //   headerName: "DUE IN DAYS",
+    //   field: "days_left",
+    //   width: 150,
+    //   renderCell: (params) => {
+    //     const { service_hrs, serviced_on } = params.row;
+    //     if (!service_hrs || !serviced_on) return '';
+    //     const serviceDays = Math.floor(service_hrs / 24);
+
+
+    //     const baseDate = new Date(serviced_on);
+    //     const today = new Date();
+
+    //     // Clear time to ensure accurate difference
+    //     baseDate.setHours(0, 0, 0, 0);
+    //     today.setHours(0, 0, 0, 0);
+
+    //     // Get the difference in milliseconds
+    //     const diffMs = today - baseDate;
+
+
+    //     // Convert milliseconds to hours
+    //     // const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    //     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+
+    //     const diff = serviceDays - diffDays
+    //     // console.log('dif', diff)
+
+    //     if (diff > 0 && diff < 30) {
+    //       return (
+    //         <span style={{ color: 'orange', fontWeight: 'bold' }}>
+    //           -{diff} days
+    //         </span>
+    //       );
+    //     }
+
+    //     if (diff > 0) {
+    //       return (
+    //         <span style={{ color: 'green', fontWeight: 'bold' }}>
+    //           -{diff} days
+    //         </span>
+    //       );
+    //     }
+
+    //     if (diff < 0) {
+    //       return (
+    //         <span style={{ color: 'red', fontWeight: 'bold' }}>
+    //           +{Math.abs(diff)} days overdue
+    //         </span>
+    //       );
+    //     }
+
+    //     return <span style={{ fontWeight: 'bold' }}>Due Today</span>;
+    //   }
+    // },
+
+    { headerName: "RATE", field: 'rate', width: 100 },
+    { headerName: "AMOUNT", field: 'amount', width: 100 },
+    { headerName: "REMARKS", field: 'notes', width: 250 },
+    // { headerName: "Active", field: 'is_active', width: 250 },
+
+
 
   ]
   const initialColumnVisibility = {
@@ -219,16 +363,15 @@ export default function ServicePage() {
   }));
   const contextMenuItems = [
     {
-      label: "Update", action: (row) => {
+      label: "Edit", action: (row) => {
         console.log(row)
         setDialogContent(
           <EditService
             id={row.id}
             psa_id={row.psa_id}
             onClose={handleClose}
+            action={'edit'}
             imageTitle={"update Image"}// Pass the close handler to the form
-
-
           />
         );
         setOpenDialogName('Edit Service')
@@ -237,6 +380,23 @@ export default function ServicePage() {
       }
     },
 
+    {
+      label: "Update", action: (row) => {
+        console.log(row)
+        setDialogContent(
+          <EditService
+            id={row.id}
+            psa_id={row.psa_id}
+            onClose={handleClose}
+            action={'add'}
+            imageTitle={"update Image"}// Pass the close handler to the form
+          />
+        );
+        setOpenDialogName('Update Service')
+        handleOpen()
+        // console.log("Edit row:", row.EQUIPMENT_ID)
+      }
+    },
     {
       label: "View Reports", action: (row) => {
         setDialogContent(
@@ -298,17 +458,28 @@ export default function ServicePage() {
       }
     }
   ];
-
-  const AddNewEquipment = () => {
-    setDialogContent(
-      <EditCMC onClose={handleClose}
-        imageTitle={"Add Image"}
-      />
-    );
-    setOpenDialogName('Add Equipment');
-    handleOpen();
+  const ViewAllServices = async () => {
+   setLoading(true);
+    try {
+      const res = await fetch("/api/services/all-records");
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        const formatted = data.map((item, index) => ({
+          id: item.id || index,
+          ...item,
+        }));
+        setAllEquipments(formatted); 
+        setEquipments(formatted);
+        setColumnDefs(recordOnlyColumnDefs);
+      } else {
+        console.warn("Expected array, got:", data);
+      }
+    } catch (error) {
+      console.error("Error fetching equipments:", error);
+    } finally {
+      setLoading(false);
+    }
   };
-
   const exportData = rows1.map(({ id, ...rest }) => rest);
   return (
     <div style={{ marginLeft: "5px", justifyContent: "center", alignItems: "center" }}>
@@ -329,16 +500,18 @@ export default function ServicePage() {
             />
             {/* Buttons */}
             <Box display="flex" gap="10px">
+              <Button
+                onClick={ViewAllServices} variant="contained" color="secondary"
+              >
+                All services
+              </Button>
+              <Button
+                onClick={fetchServices} variant="contained" color="secondary"
+              >
+                Due Services
+              </Button>
               <ExportToExcelButton data={exportData}
                 filename="exported-file" label="Export to XLS" />
-              {/* <Button 
-                ExportToExcelButton data={exportData} filename="products" 
-                variant="outlined"
-                startIcon={<ArrowUpwardOutlinedIcon />}
-                
-              >
-                Export
-              </Button> */}
               {/* <Button onClick={AddNewEquipment} variant="contained" color="secondary">
                 Add CMC/AMC
               </Button> */}

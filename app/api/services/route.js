@@ -40,13 +40,10 @@ ORDER BY
     );
   }
 }
-
 export async function POST(request) {
   try {
     await dbConnect();
-
     const data = await request.json();
-    // console.log("Received request data:", data);
 
     const {
       current_hrs,
@@ -56,7 +53,9 @@ export async function POST(request) {
       serviced_on,
       psa_id,
       rate,
-      amount
+      amount,
+      nature_of_service,
+      expenses
     } = data;
 
     if (!psa_id) {
@@ -68,38 +67,64 @@ export async function POST(request) {
         }
       );
     }
-    const query = `
+
+    // 1️⃣ Insert new record
+    const insertQuery = `
       INSERT INTO public.service_records (
-        current_hrs, is_active, next_service_due, notes, serviced_on, psa_id,rate,amount
+        current_hrs,
+        is_active,
+        next_service_due,
+        notes,
+        serviced_on,
+        psa_id,
+        rate,
+        amount,
+        nature_of_service,
+        expenses
       )
-      VALUES ($1, $2, $3, $4, $5, $6,$7,$8)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
       RETURNING *;
     `;
 
-    const values = [
+    const insertValues = [
       current_hrs || null,
-      is_active ?? true,
+      true,   // new record is always active
       next_service_due || null,
       notes || null,
       serviced_on || null,
       psa_id,
       rate || null,
-      amount || null
+      amount || null,
+      nature_of_service || null,
+      expenses || null
     ];
 
-    console.log("Executing INSERT with values:", values);
+    const result = await pool.query(insertQuery, insertValues);
+    const newRecord = result.rows[0];
 
-    const result = await pool.query(query, values);
+    // 2️⃣ Deactivate all previous records of this psa_id
+    const deactivateQuery = `
+      UPDATE public.service_records
+      SET is_active = FALSE
+      WHERE psa_id = $1 AND id <> $2;
+    `;
 
-    return new NextResponse(JSON.stringify(result.rows[0]), {
+    await pool.query(deactivateQuery, [psa_id, newRecord.id]);
+
+    // 3️⃣ Return the new record
+    return new NextResponse(JSON.stringify(newRecord), {
       status: 201,
       headers: { "Content-Type": "application/json" },
     });
+
   } catch (err) {
     console.error("Database Insert Error:", err.message);
     return new NextResponse(
       JSON.stringify({ error: "Internal Server Error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
     );
   }
 }

@@ -117,10 +117,11 @@ export async function GET(request, context) {
 // PUT handler for inserting new record and deactivating the previous one
 export async function PUT(request, context) {
   const { id } = await context.params;
-  console.log("Received id to deactivate, and insert new record");
+  console.log("Received id for update:", id);
 
   try {
     await dbConnect();
+
     const data = await request.json();
     const {
       current_hrs,
@@ -130,102 +131,61 @@ export async function PUT(request, context) {
       psa_id,
       rate,
       amount,
+      is_active,
+      nature_of_service,     // NEW FIELD
+      expenses       // NEW FIELD
     } = data;
 
-    // Begin transaction
-    await pool.query("BEGIN");
-
-    // Step 1: Mark previous record as inactive
-    const deactivateQuery = `
+    const query = `
       UPDATE service_records
-      SET is_active = false
-      WHERE id = $1;
-    `;
-    await pool.query(deactivateQuery, [id]);
-
-    // Step 2: Insert new record
-    const insertQuery = `
-      INSERT INTO service_records (
-        current_hrs,
-        is_active,
-        next_service_due,
-        notes,
-        serviced_on,
-        psa_id,
-        rate,
-        amount
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      SET 
+        current_hrs = COALESCE($1, current_hrs),
+        next_service_due = COALESCE($2, next_service_due),
+        notes = COALESCE($3, notes),
+        serviced_on = COALESCE($4, serviced_on),
+        psa_id = COALESCE($5, psa_id),
+        rate = COALESCE($6, rate),
+        amount = COALESCE($7, amount),
+        is_active = COALESCE($8, is_active),
+        nature_of_service = COALESCE($9, nature_of_service),
+        expenses = COALESCE($10,expenses)
+      WHERE id = $11
       RETURNING *;
     `;
-    const insertValues = [
+
+    const values = [
       current_hrs ?? null,
-      true, // new record should be active
       next_service_due ?? null,
       notes ?? null,
       serviced_on ?? null,
       psa_id ?? null,
       rate ?? null,
       amount ?? null,
+      is_active ?? null,
+      nature_of_service ?? null,
+      expenses ?? null,
+      id
     ];
 
-    const insertResult = await pool.query(insertQuery, insertValues);
-
-    // Commit transaction
-    await pool.query("COMMIT");
-
-    return new NextResponse(JSON.stringify(insertResult.rows[0]), {
-      status: 201,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (err) {
-    // Rollback on error
-    await pool.query("ROLLBACK");
-    console.error("Database Transaction Error:", err.message);
-    return new NextResponse(
-      JSON.stringify({ error: "Internal Server Error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
-  }
-}
-
-
-// DELETE handler for deleting service record by ID
-export async function DELETE(request, context) {
-  const { id } = await context.params;
-  console.log("Received id for deletion:", id);
-
-  try {
-    await dbConnect();
-    const query = `
-      DELETE FROM service_records
-      WHERE id = $1
-      RETURNING *;
-    `;
-    const values = [id];
     const result = await pool.query(query, values);
 
     if (result.rowCount === 0) {
       return new NextResponse(
-        JSON.stringify({ message: "Delete failed, no matching record found" }),
+        JSON.stringify({ message: "Update failed, no matching record found" }),
         {
           status: 404,
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" }
         }
       );
     }
 
-    return new NextResponse(
-      JSON.stringify({
-        message: "Record deleted successfully",
-        data: result.rows[0],
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new NextResponse(JSON.stringify(result.rows[0]), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+
   } catch (err) {
-    console.error("Database Delete Error:", err.message);
+    console.error("Database Update Error:", err.message);
     return new NextResponse(
       JSON.stringify({ error: "Internal Server Error" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
