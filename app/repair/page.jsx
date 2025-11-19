@@ -128,6 +128,40 @@ export default function ServicePage() {
     ...item,
   }));
   const contextMenuItems = [
+    // {
+    //   label: "Add New", action: (row) => {
+    //     console.log(row.id)
+    //     setDialogContent(
+    //       <EditRepair
+    //         id={row.id}
+    //         action={'Add'}
+    //         onClose={handleClose}
+    //         imageTitle={"update Image"}// Pass the close handler to the form
+
+    //       />
+    //     );
+    //     setOpenDialogName('Edit Service')
+    //     handleOpen()
+    //     // console.log("Edit row:", row.EQUIPMENT_ID)
+    //   }
+    // },
+     {
+          label: "Add Repair", action: (row) => {
+            //console.log("Edit row:", row)
+            setDialogContent(
+              <EditRepair
+                id={row.id}
+                psa_id={row.psa_id}
+                onClose={handleClose}// Pass the close handler to the form
+                action={'add'}
+              />
+            );
+            setOpenDialogName('Add Repair')
+            handleOpen()
+            //  console.log("Edit row:", row.EQUIPMENT_ID)
+          }
+    
+        },
     {
       label: "Edit", action: (row) => {
         console.log(row.id)

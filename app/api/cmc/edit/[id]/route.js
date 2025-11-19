@@ -113,9 +113,12 @@ export async function POST(request) {
   }
 }
 
+
 export async function PUT(request, context) {
-  const { id } = context.params; // Correct: no need for 'await'
-  console.log("Received id:", id); // Log psa_id
+  // Await context.params to access id
+  const params = await context.params;
+  const { id } = params;
+  console.log("Received id:", id);
 
   try {
     await dbConnect();
@@ -131,61 +134,50 @@ export async function PUT(request, context) {
       amount,
       remarks,
       is_active,
-      psa_id
+      psa_id,
     } = data;
-    // Begin transaction
-    await pool.query("BEGIN");
-    // Step 1: Mark previous record as inactive
-    const deactivateQuery = `
-      UPDATE cmc_amc
-      SET is_active = false
-      WHERE id = $1;
-    `;
-    await pool.query(deactivateQuery, [id]);
 
-    // Step 2: Insert new record
-    const insertQuery = `
-  INSERT INTO public.cmc_amc (
-    amc_cmc,
-    start_date,
-    end_date,
-    rate,
-    amount,
-    remarks,
-    is_active,
-    psa_id
-  ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-  RETURNING *;
-`;
-    const insertValues = [
+    const updateQuery = `
+      UPDATE cmc_amc
+      SET
+        amc_cmc = $1,
+        start_date = $2,
+        end_date = $3,
+        rate = $4,
+        amount = $5,
+        remarks = $6,
+        is_active = $7,
+        psa_id = $8
+      WHERE id = $9
+      RETURNING *;
+    `;
+
+    const updateValues = [
       amc_cmc ?? null,
       start_date ?? null,
       end_date ?? null,
       rate ?? null,
       amount ?? null,
       remarks ?? null,
-      is_active ?? true, // default to true if not provided
-      psa_id ?? null,            // assuming psa_id maps to id field
+      is_active ?? true,
+      psa_id ?? null,
+      id,
     ];
-    const insertResult = await pool.query(insertQuery, insertValues);
-    // Commit transaction
-    await pool.query("COMMIT");
 
-    return new NextResponse(JSON.stringify(insertResult.rows[0]), {
-      status: 201,
+    const result = await pool.query(updateQuery, updateValues);
+
+    return new NextResponse(JSON.stringify(result.rows[0]), {
+      status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    // Rollback on error
-    await pool.query("ROLLBACK");
-    console.error("Database Transaction Error:", err.message);
+    console.error("Database Update Error:", err.message);
     return new NextResponse(
       JSON.stringify({ error: "Internal Server Error" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
-
 export async function DELETE(request, context) {
   const { id } = context.params;
   console.log("Received psa_id for deletion:", id);

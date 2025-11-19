@@ -1,28 +1,28 @@
-import dbConnect, { pool } from "../../util/dbpg";
+//import dbConnect, { pool } from "../../util/dbpg";
+import dbConnect, { pool } from "../../../util/dbpg";
 import { NextResponse } from "next/server";
-export async function GET() {
-
-  console.log('api repiair')
-  try {
+export async function GET() { 
+  try {  
     await dbConnect();
     const query = `
     SELECT 
-        repair_maint.*, 
+        cmc_amc.*, 
         hospital_data.customer_name, 
         hospital_data.specification, 
+        hospital_data.model, 
         hospital_data.state, 
-        hospital_data.city       
+        hospital_data.city 
     FROM  
-        repair_maint
+        cmc_amc 
     INNER JOIN  
         hospital_data 
     ON  
-        repair_maint.psa_id = hospital_data.psa_id 
+        cmc_amc.psa_id = hospital_data.psa_id 
     
     ORDER BY   
-         repair_maint.repair_date desc;
+    end_date ;
     `;
-    const result = await pool.query(query);
+    const result = await pool.query(query );  
     if (!result.rows.length) {
       return NextResponse.json(
         { message: "No data found" },
@@ -41,33 +41,19 @@ export async function GET() {
 export async function POST(request) {
   try {
     await dbConnect();
+
     const data = await request.json();
-    // console.log("Received request data:", data);
-
-    //  id SERIAL PRIMARY KEY,
-    // psa_id VARCHAR(50),                
-    // repair_date DATE NOT NULL,
-    // fault_description TEXT NOT NULL,  -- Changed from fault_found DATE
-    // action_taken VARCHAR(50),  
-    // status VARCHAR(50),  
-    // spare_used VARCHAR(50),  
-    // cost_of_spares VARCHAR(50),  
-    // attended_by VARCHAR(50), 
-    // remarks TEXT,                
-
+    console.log("Received request data:", data);
     const {
       psa_id,
-      repair_date,
-      fault_description,
-      action_taken,
-      status,
-      spare_used,
-      cost_of_spares,
-      attended_by,
-      remarks
-
+      amc_cmc,
+      start_date,
+      end_date,
+      rate,
+      amount,
+      remarks,
+      is_active
     } = data;
-
     if (!psa_id) {
       return new NextResponse(
         JSON.stringify({ error: "Missing psa_id in request body" }),
@@ -78,32 +64,21 @@ export async function POST(request) {
       );
     }
     const query = `
-      INSERT INTO public.repair_maint (
-      psa_id,
-      repair_date,
-      fault_description,
-      action_taken,
-      status,
-      spare_used,
-      cost_of_spares,
-      attended_by,
-      remarks
-        
+      INSERT INTO public.cmc_amc (
+        psa_id, amc_cmc, start_date, end_date, rate, amount, remarks, is_active
       )
-      VALUES ($1, $2, $3, $4, $5, $6,$7,$8,$9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *;
     `;
-
     const values = [
       psa_id,
-      repair_date || null,
-      fault_description || null,
-      action_taken || null,
-      status || null,
-      spare_used || null,
-      cost_of_spares || null,
-      attended_by || null,
+      amc_cmc || null,
+      start_date || null,
+      end_date || null,
+      rate || null,
+      amount || null,
       remarks || null,
+      is_active || null
     ];
 
     console.log("Executing INSERT with values:", values);

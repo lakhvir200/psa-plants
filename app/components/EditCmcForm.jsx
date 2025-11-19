@@ -1,39 +1,76 @@
-
-'use client';
-import React, { useState, useEffect } from 'react';
+"use client";
+import React, { useState, useEffect } from "react";
 import { Box, Button, Stack, Grid } from "@mui/material";
-//import Grid from '../components/DataGrid';
-import CheckBox from "../components/Checkbox";
 import ReusableInput from "../components/inputField1";
 import DatePickerField from "../components/Datepicker";
+
 export default function EditCmcForm({ onClose, psa_id, imageTitle, action, id }) {
-  console.log('action', action)
-  const [equipmentData, setEquipmentData] = useState({});
+
+
+  console.log(onClose, psa_id, imageTitle, action, id )
   const [cmcData, setCmcData] = useState({});
+  const [formData, setFormData] = useState({
+    start_date: "",
+    end_date: "",
+    amc_cmc: "",
+    rate: "",
+    amount: "",
+    remarks: "",
+  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // --------------------------------------------------
+  // 🔄 LOAD DATA FOR ADD / EDIT
+  // --------------------------------------------------
   useEffect(() => {
-    if (!id) return;
-
-    const fetchEquipmentData = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
 
-        const endpoint = action === "add"
-          ? `/api/psa/edit/${psa_id}`
-          : `/api/cmc/edit/${id}`;
+        let psaData = null;
+        let cmcRecord = null;
 
-        const response = await fetch(endpoint);
+        // ADD MODE → load only PSA master data
+        if (action === "add") {
+          if (!psa_id) return;
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch equipment data");
+          const psaRes = await fetch(`/api/psa/edit/${psa_id}`);
+          if (!psaRes.ok) throw new Error("Failed to fetch PSA data");
+
+          psaData = await psaRes.json();
+          setCmcData(psaData);
         }
 
-        const data = await response.json();
-        const { remarks, ...rest } = data;
-        setCmcData(rest);
+        // EDIT MODE → load CMC + PSA together
+        if (action === "edit") {
+          if (!id || !psa_id) return;
 
+          const [cmcRes, psaRes] = await Promise.all([
+            fetch(`/api/cmc/edit/${id}`),
+            fetch(`/api/psa/edit/${psa_id}`),
+          ]);
+
+          if (!cmcRes.ok || !psaRes.ok)
+            throw new Error("Failed to fetch data");
+
+          cmcRecord = await cmcRes.json();
+          psaData = await psaRes.json();
+
+          const merged = { ...psaData, ...cmcRecord };
+          setCmcData(merged);
+
+          // Pre-fill formData from CMC record
+          setFormData({
+            start_date: cmcRecord.start_date || "",
+            end_date: cmcRecord.end_date || "",
+            amc_cmc: cmcRecord.amc_cmc || "",
+            rate: cmcRecord.rate || "",
+            amount: cmcRecord.amount || "",
+            remarks: cmcRecord.remarks || "",
+          });
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -41,164 +78,217 @@ export default function EditCmcForm({ onClose, psa_id, imageTitle, action, id })
       }
     };
 
-    fetchEquipmentData();
-  }, [id, action]); // 👈 include action in dependencies
+    fetchData();
+  }, [action, id, psa_id]);
 
+  if (loading) return <div>Loading...</div>;
 
-  // console.log(cmcData, equipmentData)
-
-  if (!cmcData) return <div>Loading...</div>;
-
+  // --------------------------------------------------
+  // 🔧 HANDLE TEXT INPUTS
+  // --------------------------------------------------
   const handleChangeText = (event) => {
     const { name, value } = event.target;
-    setCmcData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  // const handleChange = (e, value, name) => {
-  //   setCmcData((prev) => ({
-  //     ...prev,
-  //     [name || e.target.name]: value ?? e.target.value,
 
-  //   }));
-  // };
+  // --------------------------------------------------
+  // 📅 HANDLE DATE PICKERS + AUTO END DATE
+  // --------------------------------------------------
   const handleChange = (e, value, name) => {
     const fieldName = name || e.target.name;
     const fieldValue = value ?? e.target.value;
 
-    const updatedData = {
-      ...cmcData,
-      [fieldName]: fieldValue,
+    const updated = { ...formData, [fieldName]: fieldValue };
+
+    // Auto-generate 1 year end date
+    if (fieldName === "start_date") {
+      const start = new Date(fieldValue);
+      if (!isNaN(start)) {
+        const end = new Date(start);
+        end.setFullYear(end.getFullYear() + 1);
+        end.setDate(end.getDate() - 1);
+
+        updated.end_date = end.toISOString().split("T")[0];
+      }
+    }
+
+    setFormData(updated);
+  };
+
+  // --------------------------------------------------
+  // 📝 SUBMIT FORM
+  // --------------------------------------------------
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const payload = {
+      ...formData,
+      psa_id: psa_id,
+      id: id,
     };
 
-    // If start_date is being changed, auto-calculate end_date
-    if (fieldName === "start_date" && fieldValue) {
-      const startDate = new Date(fieldValue);
-      if (!isNaN(startDate)) {
-        const endDate = new Date(startDate);
-        endDate.setFullYear(endDate.getFullYear() + 1);
-        endDate.setDate(endDate.getDate() - 1);
-
-        updatedData["end_date"] = endDate.toISOString().split("T")[0];
-      }
-    }
-
-    setCmcData(updatedData);
+    if (action === "add") addCmc(payload);
+    else updateCmc(payload);
   };
 
-  const handleChangeCheckbox = (name, value) => {
-    setCmcData((prev) => ({
-      ...prev,
-      [name]: value,
-
-    }));
-  };
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    if (action === "add") {
-      console.log("Adding new CMC:", cmcData);
-      addCmc(cmcData); // Call function to add
-    } else {
-      console.log("Updating CMC:", cmcData);
-      updateCmc(cmcData); // Call function to update
-    }
-  };
+  // --------------------------------------------------
+  // 🔧 UPDATE CMC
+  // --------------------------------------------------
   const updateCmc = async (data) => {
-    console.log("Updating CMC in database...", data);
     try {
-      const response = await fetch(`/api/cmc/update/${data.id}`, {
+      const response = await fetch(`/api/cmc/edit/${data.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!response.ok) {
-        throw new Error("Failed to update CMC");
-      }
-      const result = await response.json();
-      console.log("Update successful", result);
 
-      // Show success alert
-      alert("Data has been updated successfully!");
+      if (!response.ok) throw new Error("Failed to update CMC");
+
+      alert("Data updated successfully!");
       window.location.href = "/cmc";
     } catch (error) {
-      console.error("Error updating CMC:", error.message);
-      alert("Failed to update data. Please try again.");
+      alert("Update failed. Try again.");
     }
   };
-  const addCmc = async (cmcData) => {
-    console.log("Adding new CMC to the database...", cmcData);
+
+  // --------------------------------------------------
+  // ➕ ADD NEW CMC
+  // --------------------------------------------------
+  const addCmc = async (data) => {
     try {
       const response = await fetch(`/api/cmc`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(cmcData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
-      if (!response.ok) {
-        throw new Error("Failed to add new CMC");
-      }
-      const result = await response.json();
-      console.log("Addition successful", result);
-      // Show success alert
-      alert("New CMC has been added successfully!");
-      window.location.href = "/cmc"; // Redirect after success
+
+      if (!response.ok) throw new Error("Failed to add CMC");
+
+      alert("New CMC added successfully!");
+      window.location.href = "/cmc";
     } catch (error) {
-      console.error("Error adding new CMC:", error.message);
-      alert("Failed to add data. Please try again.");
+      alert("Failed to add data.");
     }
   };
+
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
   return (
     <form onSubmit={handleSubmit}>
-      <Grid container spacing={2} sx={{ display: 'flex' }}>
-        <Grid sx={{ width: "23%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <Grid container spacing={2}>
+
+        {/* IMAGE */}
+        <Grid sx={{ width: "23%", display: "flex", justifyContent: "center" }}>
           <Box>
             <img
               src="/images/MENTIS.jpg"
-              alt={equipmentData.model}
+              alt="CMC"
               width={250}
               height={250}
-              style={{ border: "1px solid #ccc", objectFit: "cover" }}
+              style={{ border: "1px solid #ccc" }}
             />
           </Box>
-          {/* <Button variant="contained" color="primary" sx={{ marginTop: 1 }}>
-            {imageTitle || "Add Image"}
-          </Button> */}
         </Grid>
-        <Grid sx={{ width: '75%' }}>
+
+        {/* FORM FIELDS */}
+        <Grid sx={{ width: "75%" }}>
           <Grid container spacing={2}>
-            <Grid sx={{ width: '45%' }}>
+
+            {/* LEFT */}
+            <Grid sx={{ width: "45%" }}>
               <Stack spacing={2}>
-                <ReusableInput label="ID" name="psa_id" inputValue={cmcData.psa_id || ""} fullWidth />
-                <ReusableInput label="Customer Name" name="customer_name" inputValue={cmcData.customer_name || ""} fullWidth />
-                {/* <ReusableInput label="State" name="state" inputValue={cmcData.state || ""} fullWidth /> */}
-                <DatePickerField label="Start Date of CMC" name="start_date" value={cmcData.start_date || ""} onChange={handleChange} fullWidth />
-                <DatePickerField label="End Date of CMC" name="end_date" value={cmcData.end_date || ""} onChange={handleChange} fullWidth />
+                <ReusableInput
+                  label="PSA ID"
+                  name="psa_id"
+                  inputValue={cmcData.psa_id || ""}
+                  disabled
+                  fullWidth
+                />
+
+                <ReusableInput
+                  label="Customer Name"
+                  name="customer_name"
+                  inputValue={cmcData.customer_name || ""}
+                  disabled
+                  fullWidth
+                />
+
+                <DatePickerField
+                  label="Start Date of CMC"
+                  name="start_date"
+                  value={formData.start_date}
+                  onChange={handleChange}
+                  fullWidth
+                />
+
+                <DatePickerField
+                  label="End Date of CMC"
+                  name="end_date"
+                  value={formData.end_date}
+                  onChange={handleChange}
+                  fullWidth
+                />
               </Stack>
             </Grid>
-            <Grid sx={{ width: '45%' }}>
+
+            {/* RIGHT */}
+            <Grid sx={{ width: "45%" }}>
               <Stack spacing={2}>
-                {/* <ReusableInput label="City" name="city" inputValue={cmcData.city || ""} fullWidth /> */}
-                <ReusableInput label="AMC/CMC" name="amc_cmc" onChange={handleChangeText} inputValue={cmcData.amc_cmc || ""} fullWidth />
-                <ReusableInput label="Rate" name="rate" onChange={handleChangeText} inputValue={cmcData.rate || ""} fullWidth />
-                <ReusableInput label="Amount" name="amount" onChange={handleChangeText} inputValue={cmcData.amount || ""} fullWidth />
+                <ReusableInput
+                  label="AMC/CMC"
+                  name="amc_cmc"
+                  inputValue={formData.amc_cmc}
+                  onChange={handleChangeText}
+                  fullWidth
+                />
+
+                <ReusableInput
+                  label="Rate"
+                  name="rate"
+                  inputValue={formData.rate}
+                  onChange={handleChangeText}
+                  fullWidth
+                />
+
+                <ReusableInput
+                  label="Amount"
+                  name="amount"
+                  inputValue={formData.amount}
+                  onChange={handleChangeText}
+                  fullWidth
+                />
               </Stack>
             </Grid>
-            <Grid sx={{ width: '95%' }}>
-              <ReusableInput label="Remarks" name="remarks" onChange={handleChangeText} inputValue={cmcData.remarks || ""} multiline rows={1} fullWidth />
+
+            {/* REMARKS */}
+            <Grid sx={{ width: "95%" }}>
+              <ReusableInput
+                label="Remarks"
+                name="remarks"
+                inputValue={formData.remarks}
+                onChange={handleChangeText}
+                multiline
+                rows={2}
+                fullWidth
+              />
             </Grid>
           </Grid>
         </Grid>
-        <Grid container justifyContent="flex-end" spacing={2} sx={{ width: '100%', marginTop: 2 }}>
+
+        {/* BUTTONS */}
+        <Grid
+          container
+          justifyContent="flex-end"
+          spacing={2}
+          sx={{ width: "100%", mt: 2 }}
+        >
           <Grid>
             <Button variant="contained" color="primary" type="submit">
               Submit
             </Button>
           </Grid>
+
           <Grid>
             <Button variant="outlined" color="secondary" onClick={onClose}>
               Close
@@ -207,8 +297,5 @@ export default function EditCmcForm({ onClose, psa_id, imageTitle, action, id })
         </Grid>
       </Grid>
     </form>
-
   );
-};
-
-
+}

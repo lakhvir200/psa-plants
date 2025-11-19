@@ -1,6 +1,5 @@
 
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { Box, Button, Stack, Grid } from "@mui/material";
 import ReusableModal from "../components/DialogPopup";
@@ -114,7 +113,7 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
     event.preventDefault();
 
     const mergedData = { ...data, ...formData };
-    console.log(mergedData)
+    //console.log(mergedData)
 
     if (action === "add") {
       add(mergedData);
@@ -255,7 +254,6 @@ export default function EditServiceForm({ onClose, id, imageTitle, action, psa_i
                 Submit
               </Button>
             </Grid>
-
             <Grid item>
               <Button variant="outlined" color="secondary" onClick={onClose}>Close</Button>
             </Grid>

@@ -1,177 +1,116 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CustomDataGrid from "../components/DataGrid.jsx";
-import { Container, Typography, CircularProgress, Grid } from '@mui/material';
-import { Paper, MenuItem, Select, FormControl, InputLabel, Box, Button, TextField } from "@mui/material";
-import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
+import { Paper, Box, Button, TextField, CircularProgress } from "@mui/material";
 import ReusableModal from "../components/DialogPopup";
-import EditCMC from '../components/EditCmcForm.jsx'
-import EditService from '../components/EditServiceForm.jsx'
-import UploadService from '../components/EditServiceReport'
+import EditService from '../components/EditServiceForm.jsx';
+import UploadService from '../components/EditServiceReport';
 import ViewReports from '../components/ServiceDetail.js';
-
-
-import { fetchHospitalData, fetchSearchEquipments, fetchSearchHospitalData,serviceData } from '../util/api.js';
 import debounce from "lodash.debounce";
 import ExportToExcelButton from '../components/ExportToExcelButton.jsx';
 
 export default function ServicePage() {
-  const isFirstRender = useRef(true);
-  // Filter states 
+
   const [equipments, setEquipments] = useState([]);
   const [loading, setLoading] = useState(true);
-  // search
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
 
-  //dialog box
+  //dialog
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openDialogName, setOpenDialogName] = useState('');
-  const [equipmentId, setEquipmentId] = useState('');
   const [dialogContent, setDialogContent] = useState(null);
+
   const [columnDefs, setColumnDefs] = useState('');
   const [allEquipments, setAllEquipments] = useState([]);
-  const handleOpen = () => {
-    setIsModalOpen(true);
-    //console.log("Opening modal...");
-  };
-  const handleClose = () => {
-    setIsModalOpen(false);
-    // console.log("closing modal...");
-  }
+
+  const handleOpen = () => setIsModalOpen(true);
+  const handleClose = () => setIsModalOpen(false);
+
   const handleSearch = (e) => {
     if (e.target.value.length === 0 || e.target.value.length > 2)
       setSearchText(e.target.value || "");
-  }
+  };
+
   const fetchServices = async () => {
-     setLoading(true);
-    
+    setLoading(true);
     try {
       const res = await fetch("/api/services");
       const data = await res.json();
-      // console.log("Fetched data:", data);
-
-      // ensure it’s an array and includes `id`
       if (Array.isArray(data)) {
         const formatted = data.map((item, index) => ({
-          id: item.id || index, // fallback to index
+          id: item.id || index,
           ...item,
         }));
-        setAllEquipments(formatted);  
+        setAllEquipments(formatted);
         setEquipments(formatted);
         setColumnDefs(joinedColumnDefs);
-
-      } else {
-        console.warn("Expected array, got:", data);
       }
     } catch (error) {
-      console.error("Error fetching equipments:", error);
+      console.error("Error fetching services:", error);
     } finally {
       setLoading(false);
     }
   };
-  // console.log(searchText)
+
   useEffect(() => {
     fetchServices();
-    
   }, []);
 
-  // console.log(equipments)
-  // Debounced search function to prevent rapid API calls
-  const loadData = debounce(async (filters) => {
-    try {
-      const data = await fetchSearchHospitalData(filters);
-      // console.log("Fetched Data:", data);
-      setEquipments(data);
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-  }, 300); // Debounce delay in milliseconds
-  // useEffect(() => {
-  //   const filters = {
-  //     search: searchText || null,
-
-  //   };
-  //   // Skip the first render
-  //   if (isFirstRender.current) {
-  //     isFirstRender.current = false;
-  //     return;
-  //   }
-  //   loadData(filters);
-  //   // Cleanup debounce on unmount
-  //   return () => loadData.cancel();
-  // }, [searchText]);
-
+  // Search
   useEffect(() => {
-  if (!searchText.trim()) {
-    setEquipments(allEquipments);
-    return;
-  }
+    if (!searchText.trim()) {
+      setEquipments(allEquipments);
+      return;
+    }
 
-  const term = searchText.toLowerCase();
+    const term = searchText.toLowerCase();
 
-  const filtered = allEquipments.filter(item =>
-    item.customer_name?.toLowerCase().includes(term) ||
-    item.city?.toLowerCase().includes(term) ||
-    item.state?.toLowerCase().includes(term) ||
-    item.model?.toLowerCase().includes(term) ||
-    item.psa_id?.toLowerCase().includes(term) ||
-    item.nature_of_service?.toLowerCase().includes(term)
-  );
+    const filtered = allEquipments.filter(item =>
+      item.customer_name?.toLowerCase().includes(term) ||
+      item.city?.toLowerCase().includes(term) ||
+      item.state?.toLowerCase().includes(term) ||
+      item.model?.toLowerCase().includes(term) ||
+      item.psa_id?.toLowerCase().includes(term) ||
+      item.nature_of_service?.toLowerCase().includes(term)
+    );
 
-  setEquipments(filtered);
+    setEquipments(filtered);
 
-}, [searchText, allEquipments]);
+  }, [searchText, allEquipments]);
+
   const joinedColumnDefs = [
     { headerName: "ID", field: "psa_id", width: 100 },
     { headerName: "CUSTOMER NAME", field: "customer_name", width: 220 },
     { headerName: "Model", field: "model", width: 100 },
-
-    // { headerName: "STATE", field: "state", width: 120 },
     { headerName: "CITY", field: "city", width: 120 },
     { headerName: "SER_HRS", field: "service_hrs", width: 100 },
-
 
     {
       field: "serviced_on",
       headerName: "DATE OF SERVICE",
       width: 100,
       renderCell: (params) => {
-        if (!params.value) return ''; // Handle null or undefined values    
-        const date = new Date(params.value); // Convert to Date object
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-        const year = date.getFullYear();
-        return `${day}-${month}-${year}`;
+        if (!params.value) return '';
+        const date = new Date(params.value);
+        return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
       }
     },
     { headerName: "Nature Of Service", field: "nature_of_service", width: 100 },
     { headerName: "RUN HOURS", field: "current_hrs", width: 100 },
-
-
     {
       headerName: "NEXT SERVICE DATE",
       field: "next_service_date",
       width: 100,
       renderCell: (params) => {
         const { service_hrs, serviced_on } = params.row;
-
         if (!service_hrs || !serviced_on) return '';
-
         const baseDate = new Date(serviced_on);
-
-        // Convert hours to milliseconds
-        const nextServiceDate = new Date(baseDate.getTime() + service_hrs * 60 * 60 * 1000);
-
-        const day = String(nextServiceDate.getDate()).padStart(2, '0');
-        const month = String(nextServiceDate.getMonth() + 1).padStart(2, '0');
-        const year = nextServiceDate.getFullYear();
-
-        return `${day}-${month}-${year}`;
+        const nextServiceDate = new Date(baseDate.getTime() + service_hrs * 3600000);
+        return `${String(nextServiceDate.getDate()).padStart(2, '0')}-${String(nextServiceDate.getMonth() + 1).padStart(2, '0')}-${nextServiceDate.getFullYear()}`;
       }
     },
 
     {
-
       headerName: "DUE IN DAYS",
       field: "days_left",
       width: 150,
@@ -180,49 +119,22 @@ export default function ServicePage() {
         if (!service_hrs || !serviced_on) return '';
         const serviceDays = Math.floor(service_hrs / 24);
 
-
         const baseDate = new Date(serviced_on);
         const today = new Date();
-
-        // Clear time to ensure accurate difference
         baseDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
 
-        // Get the difference in milliseconds
-        const diffMs = today - baseDate;
+        const diffDays = Math.floor((today - baseDate) / 86400000);
+        const diff = serviceDays - diffDays;
 
+        if (diff > 0 && diff < 30)
+          return <span style={{ color: 'orange', fontWeight: 'bold' }}>-{diff} days</span>;
 
-        // Convert milliseconds to hours
-        // const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        if (diff > 0)
+          return <span style={{ color: 'green', fontWeight: 'bold' }}>-{diff} days</span>;
 
-
-        const diff = serviceDays - diffDays
-        // console.log('dif', diff)
-
-        if (diff > 0 && diff < 30) {
-          return (
-            <span style={{ color: 'orange', fontWeight: 'bold' }}>
-              -{diff} days
-            </span>
-          );
-        }
-
-        if (diff > 0) {
-          return (
-            <span style={{ color: 'green', fontWeight: 'bold' }}>
-              -{diff} days
-            </span>
-          );
-        }
-
-        if (diff < 0) {
-          return (
-            <span style={{ color: 'red', fontWeight: 'bold' }}>
-              +{Math.abs(diff)} days overdue
-            </span>
-          );
-        }
+        if (diff < 0)
+          return <span style={{ color: 'red', fontWeight: 'bold' }}>+{Math.abs(diff)} days overdue</span>;
 
         return <span style={{ fontWeight: 'bold' }}>Due Today</span>;
       }
@@ -231,203 +143,65 @@ export default function ServicePage() {
     { headerName: "RATE", field: 'rate', width: 100 },
     { headerName: "AMOUNT", field: 'amount', width: 100 },
     { headerName: "REMARKS", field: 'notes', width: 250 },
-    // { headerName: "Active", field: 'is_active', width: 250 },
+  ];
 
-
-
-  ]
-  const recordOnlyColumnDefs = [
-    { headerName: "ID", field: "psa_id", width: 100 },
-    { headerName: "CUSTOMER NAME", field: "customer_name", width: 220 },
-    { headerName: "Model", field: "model", width: 100 },
-
-    // { headerName: "STATE", field: "state", width: 120 },
-    { headerName: "CITY", field: "city", width: 120 },
-    { headerName: "SER_HRS", field: "service_hrs", width: 100 },
-
-
-    {
-      field: "serviced_on",
-      headerName: "DATE OF SERVICE",
-      width: 100,
-      renderCell: (params) => {
-        if (!params.value) return ''; // Handle null or undefined values    
-        const date = new Date(params.value); // Convert to Date object
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-        const year = date.getFullYear();
-        return `${day}-${month}-${year}`;
-      }
-    },
-    { headerName: "Nature Of Service", field: "nature_of_service", width: 100 },
-    { headerName: "RUN HOURS", field: "current_hrs", width: 100 },
-
-
-    // {
-    //   headerName: "NEXT SERVICE DATE",
-    //   field: "next_service_date",
-    //   width: 100,
-    //   renderCell: (params) => {
-    //     const { service_hrs, serviced_on } = params.row;
-
-    //     if (!service_hrs || !serviced_on) return '';
-
-    //     const baseDate = new Date(serviced_on);
-
-    //     // Convert hours to milliseconds
-    //     const nextServiceDate = new Date(baseDate.getTime() + service_hrs * 60 * 60 * 1000);
-
-    //     const day = String(nextServiceDate.getDate()).padStart(2, '0');
-    //     const month = String(nextServiceDate.getMonth() + 1).padStart(2, '0');
-    //     const year = nextServiceDate.getFullYear();
-
-    //     return `${day}-${month}-${year}`;
-    //   }
-    // },
-
-    // {
-
-    //   headerName: "DUE IN DAYS",
-    //   field: "days_left",
-    //   width: 150,
-    //   renderCell: (params) => {
-    //     const { service_hrs, serviced_on } = params.row;
-    //     if (!service_hrs || !serviced_on) return '';
-    //     const serviceDays = Math.floor(service_hrs / 24);
-
-
-    //     const baseDate = new Date(serviced_on);
-    //     const today = new Date();
-
-    //     // Clear time to ensure accurate difference
-    //     baseDate.setHours(0, 0, 0, 0);
-    //     today.setHours(0, 0, 0, 0);
-
-    //     // Get the difference in milliseconds
-    //     const diffMs = today - baseDate;
-
-
-    //     // Convert milliseconds to hours
-    //     // const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    //     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-
-    //     const diff = serviceDays - diffDays
-    //     // console.log('dif', diff)
-
-    //     if (diff > 0 && diff < 30) {
-    //       return (
-    //         <span style={{ color: 'orange', fontWeight: 'bold' }}>
-    //           -{diff} days
-    //         </span>
-    //       );
-    //     }
-
-    //     if (diff > 0) {
-    //       return (
-    //         <span style={{ color: 'green', fontWeight: 'bold' }}>
-    //           -{diff} days
-    //         </span>
-    //       );
-    //     }
-
-    //     if (diff < 0) {
-    //       return (
-    //         <span style={{ color: 'red', fontWeight: 'bold' }}>
-    //           +{Math.abs(diff)} days overdue
-    //         </span>
-    //       );
-    //     }
-
-    //     return <span style={{ fontWeight: 'bold' }}>Due Today</span>;
-    //   }
-    // },
-
-    { headerName: "RATE", field: 'rate', width: 100 },
-    { headerName: "AMOUNT", field: 'amount', width: 100 },
-    { headerName: "REMARKS", field: 'notes', width: 250 },
-    // { headerName: "Active", field: 'is_active', width: 250 },
-
-
-
-  ]
   const initialColumnVisibility = {
     rate: false,
     amount: false,
-
   };
 
   const rows1 = equipments.map((item) => ({
     id: item.psa_id,
     ...item,
   }));
+
   const contextMenuItems = [
     {
       label: "Edit", action: (row) => {
-        console.log(row)
         setDialogContent(
           <EditService
             id={row.id}
             psa_id={row.psa_id}
             onClose={handleClose}
             action={'edit'}
-            imageTitle={"update Image"}// Pass the close handler to the form
           />
         );
-        setOpenDialogName('Edit Service')
-        handleOpen()
-        // console.log("Edit row:", row.EQUIPMENT_ID)
+        setOpenDialogName('Edit Service');
+        handleOpen();
       }
     },
-
     {
       label: "Update", action: (row) => {
-        console.log(row)
         setDialogContent(
           <EditService
             id={row.id}
             psa_id={row.psa_id}
             onClose={handleClose}
             action={'add'}
-            imageTitle={"update Image"}// Pass the close handler to the form
           />
         );
-        setOpenDialogName('Update Service')
-        handleOpen()
-        // console.log("Edit row:", row.EQUIPMENT_ID)
+        setOpenDialogName('Update Service');
+        handleOpen();
       }
     },
     {
       label: "View Reports", action: (row) => {
         setDialogContent(
-          <ViewReports
-            psa_id={row.psa_id}
-            onClose={handleClose}// Pass the close handler to the form
-          />
+          <ViewReports psa_id={row.psa_id} onClose={handleClose} />
         );
-        setOpenDialogName('View Reports')
-        handleOpen()
-        //  console.log("Edit row:", row.EQUIPMENT_ID)
+        setOpenDialogName('View Reports');
+        handleOpen();
       }
     },
     {
       label: "Upload Report", action: (row) => {
-
         setDialogContent(
-          <UploadService
-            id={row.psa_id}
-            onClose={handleClose}// Pass the close handler to the form
-          />
+          <UploadService id={row.psa_id} onClose={handleClose} />
         );
-        setOpenDialogName('Upload report')
-        handleOpen()
-        //  console.log("Edit row:", row.EQUIPMENT_ID)
+        setOpenDialogName('Upload report');
+        handleOpen();
       }
     },
-
-    // { label: "Upload Image", action: (row) => console.log("Edit row:", row) },
-    // { label: "Delete", action: (row) => console.log("Delete row:", row) },
-
     {
       label: "Delete", action: async (row) => {
         const confirmed = window.confirm(`Are you sure you want to delete PSA ID: ${row.id}?`);
@@ -436,21 +210,17 @@ export default function ServicePage() {
         try {
           const res = await fetch(`/api/services/edit/${row.id}`, {
             method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
           });
 
           const result = await res.json();
 
           if (res.ok) {
             alert('Deleted successfully');
-
-            // optionally refresh table data
-            await fetchEquipments();; // Replace with your own data reload function
+            await fetchServices();
           } else {
             alert(`Delete failed: ${result.message || result.error}`);
           }
+
         } catch (error) {
           console.error("Delete error:", error);
           alert("Something went wrong while deleting.");
@@ -458,8 +228,9 @@ export default function ServicePage() {
       }
     }
   ];
+
   const ViewAllServices = async () => {
-   setLoading(true);
+    setLoading(true);
     try {
       const res = await fetch("/api/services/all-records");
       const data = await res.json();
@@ -468,62 +239,54 @@ export default function ServicePage() {
           id: item.id || index,
           ...item,
         }));
-        setAllEquipments(formatted); 
+        setAllEquipments(formatted);
         setEquipments(formatted);
         setColumnDefs(recordOnlyColumnDefs);
-      } else {
-        console.warn("Expected array, got:", data);
       }
-    } catch (error) {
-      console.error("Error fetching equipments:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  const recordOnlyColumnDefs = joinedColumnDefs.filter(
+    col => col.field !== "next_service_date" && col.field !== "days_left"
+  );
+
   const exportData = rows1.map(({ id, ...rest }) => rest);
+
   return (
-    <div style={{ marginLeft: "5px", justifyContent: "center", alignItems: "center" }}>
+    <div style={{ marginLeft: "5px" }}>
       <h2>Services Detail</h2>
       {loading ? (
         <CircularProgress />
       ) : (
         <Paper elevation={3} style={{ padding: "10px" }}>
           <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="10px">
-            {/* Search Box */}
             <TextField
               label="Search"
               variant="outlined"
-              type="search"
               size="small"
               style={{ width: "15%" }}
               onChange={handleSearch}
             />
-            {/* Buttons */}
+
             <Box display="flex" gap="10px">
-              <Button
-                onClick={ViewAllServices} variant="contained" color="secondary"
-              >
+              <Button onClick={ViewAllServices} variant="contained" color="secondary">
                 All services
               </Button>
-              <Button
-                onClick={fetchServices} variant="contained" color="secondary"
-              >
+
+              <Button onClick={fetchServices} variant="contained" color="secondary">
                 Due Services
               </Button>
-              <ExportToExcelButton data={exportData}
-                filename="exported-file" label="Export to XLS" />
-              {/* <Button onClick={AddNewEquipment} variant="contained" color="secondary">
-                Add CMC/AMC
-              </Button> */}
+
+              <ExportToExcelButton data={exportData} filename="exported-file" label="Export to XLS" />
             </Box>
           </Box>
-          <ReusableModal
-            open={isModalOpen}
-            onClose={handleClose}
-            title={openDialogName}
-          >
+
+          <ReusableModal open={isModalOpen} onClose={handleClose} title={openDialogName}>
             {dialogContent}
           </ReusableModal>
+
           <CustomDataGrid
             rows={rows1}
             columns={columnDefs}
